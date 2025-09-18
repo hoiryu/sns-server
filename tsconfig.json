@@ -23,6 +23,7 @@
 		"noFallthroughCasesInSwitch": false,
 		"paths": {
 			"~posts/*": ["./src/posts/*"],
+			"~users/*": ["./src/users/*"],
 			"~src/*": ["./src/*"],
 			"~/*": ["./*"]
 		}

@@ -5,6 +5,8 @@ import { PostsModel } from '~posts/entities/posts.entity';
 import { PostsModule } from '~posts/posts.module';
 import { AppController } from '~src/app.controller';
 import { AppService } from '~src/app.service';
+import { UsersModel } from '~users/entities/users.entity';
+import { UsersModule } from './users/users.module';
 
 @Module({
 	imports: [
@@ -12,7 +14,6 @@ import { AppService } from '~src/app.service';
 			isGlobal: true,
 			envFilePath: ['.env.local', '.env'],
 		}),
-		PostsModule,
 		TypeOrmModule.forRootAsync({
 			inject: [ConfigService],
 			useFactory: (config: ConfigService) => ({
@@ -22,10 +23,12 @@ import { AppService } from '~src/app.service';
 				username: config.get('DB_USERNAME', 'postgres'),
 				password: config.get('DB_PASSWORD'),
 				database: config.get('DB_DATABASE', 'postgres'),
-				entities: [PostsModel],
+				entities: [PostsModel, UsersModel],
 				synchronize: true,
 			}),
 		}),
+		PostsModule,
+		UsersModule,
 	],
 	controllers: [AppController],
 	providers: [AppService],

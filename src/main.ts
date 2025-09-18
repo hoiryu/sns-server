@@ -1,8 +1,19 @@
 import { NestFactory } from '@nestjs/core';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from '~src/app.module';
 
 async function bootstrap() {
 	const app = await NestFactory.create(AppModule);
-	await app.listen(process.env.PORT ?? 6000);
+
+	const swaggerConfig = new DocumentBuilder()
+		.setTitle('SNS')
+		.setDescription('SNS 용')
+		.setVersion('1.0')
+		.addTag('sns')
+		.build();
+	const documentFactory = () => SwaggerModule.createDocument(app, swaggerConfig);
+	SwaggerModule.setup('api', app, documentFactory);
+
+	await app.listen(process.env.PORT ?? 4000);
 }
 bootstrap();
