@@ -10,7 +10,7 @@ import { UsersService } from '~users/users.service';
  * @return boolean
  */
 @Injectable()
-export abstract class BearerTokenGuard implements CanActivate {
+export class BearerTokenGuard implements CanActivate {
 	constructor(
 		private readonly authService: AuthService,
 		private readonly usersService: UsersService,

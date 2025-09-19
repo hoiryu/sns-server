@@ -1,3 +1,5 @@
+import { ApiProperty } from '@nestjs/swagger';
+import { IsString } from 'class-validator';
 import { Column, Entity, ManyToOne } from 'typeorm';
 import { BaseModel } from '~common/entities/base.entity';
 import { UsersModel } from '~users/entities/users.entity';
@@ -9,15 +11,25 @@ export class PostsModel extends BaseModel {
 	})
 	author: UsersModel;
 
-	@Column()
-	title: string;
-
+	@ApiProperty({
+		example: 'content',
+		description: '포스트 내용',
+	})
+	@IsString({
+		message: 'Content must be a string.',
+	})
 	@Column()
 	content: string;
 
+	@ApiProperty({
+		description: '좋아요 갯수',
+	})
 	@Column()
-	likeCount: string;
+	likeCount: number;
 
+	@ApiProperty({
+		description: '코멘트 갯수',
+	})
 	@Column()
-	commentCount: string;
+	commentCount: number;
 }

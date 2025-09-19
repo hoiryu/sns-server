@@ -66,7 +66,7 @@ export class AuthService {
 		 * email: email,
 		 * type: 'access' | 'refresh'
 		 */
-		if (decodedToken.type !== 'refresh')
+		if (decodedToken.payload.type !== 'refresh')
 			throw new UnauthorizedException('토큰 재발급은 Refresh 토큰으로만 가능합니다!');
 
 		return this.signToken(
