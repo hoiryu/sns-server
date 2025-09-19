@@ -5,7 +5,7 @@ import { ERoles } from '~users/constants/roles.constant';
 
 @Entity()
 export class UsersModel extends BaseModel {
-	@Column({ length: 30 })
+	@Column({ length: 20 })
 	name: string;
 
 	@Column({ unique: true, length: 20 })
@@ -14,7 +14,7 @@ export class UsersModel extends BaseModel {
 	@Column({ unique: true })
 	email: string;
 
-	@Column({ select: false })
+	@Column()
 	password: string;
 
 	@Column({

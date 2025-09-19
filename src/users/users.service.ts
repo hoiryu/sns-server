@@ -10,14 +10,13 @@ export class UsersService {
 		private readonly usersRepository: Repository<UsersModel>,
 	) {}
 
-	async createUser(user: Pick<UsersModel, 'email' | 'nickname' | 'password'>) {
-		// exist() -> 만약에 조건에 해당되는 값이 있으면 true 반환
+	async createUser(user: Pick<UsersModel, 'name' | 'email' | 'nickname' | 'password'>) {
+		// exists() -> 만약에 조건에 해당되는 값이 있으면 true 반환
 		const nicknameExists = await this.usersRepository.exists({
 			where: {
 				nickname: user.nickname,
 			},
 		});
-
 		if (nicknameExists) throw new BadRequestException('이미 존재하는 nickname 입니다!');
 
 		const emailExists = await this.usersRepository.exists({
@@ -25,18 +24,18 @@ export class UsersService {
 				email: user.email,
 			},
 		});
-
 		if (emailExists) throw new BadRequestException('이미 가입한 이메일입니다!');
 
 		const createdUser = this.usersRepository.create({
+			name: user.name,
 			nickname: user.nickname,
 			email: user.email,
 			password: user.password,
 		});
 
-		const newUser = await this.usersRepository.save(createdUser);
+		const savedUser = await this.usersRepository.save(createdUser);
 
-		return newUser;
+		return savedUser;
 	}
 
 	async getAllUsers() {

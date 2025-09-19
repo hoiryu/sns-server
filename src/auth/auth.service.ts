@@ -128,19 +128,11 @@ export class AuthService {
 	 * @returns user
 	 */
 	async authenticateWithEmailAndPassword(user: Pick<UsersModel, 'email' | 'password'>) {
-		// 존재 확인
 		const existingUser = await this.usersService.getUserByEmail(user.email);
+		if (!existingUser) throw new UnauthorizedException('존재하지 않는 사용자입니다.');
 
-		if (!existingUser) {
-			throw new UnauthorizedException('존재하지 않는 사용자입니다.');
-		}
-
-		// 비밀번호 확인
-		const pass = await bcrypt.compare(user.password, existingUser.password);
-
-		if (!pass) {
-			throw new UnauthorizedException('비밀번호가 틀렸습니다.');
-		}
+		const isPass = await bcrypt.compare(user.password, existingUser.password);
+		if (!isPass) throw new UnauthorizedException('비밀번호가 틀렸습니다.');
 
 		return existingUser;
 	}
@@ -160,7 +152,7 @@ export class AuthService {
 	async registerWithEmail(user: RegisterUserDto) {
 		const hash = await bcrypt.hash(
 			user.password,
-			parseInt(this.configService.get<string>('HASH_ROUNDS_KEY', '')),
+			Number(this.configService.get<number>('HASH_ROUNDS_KEY')),
 		);
 
 		const newUser = await this.usersService.createUser({
@@ -168,6 +160,9 @@ export class AuthService {
 			password: hash,
 		});
 
-		return this.signinWithEmail(newUser);
+		return this.signinWithEmail({
+			...newUser,
+			password: user.password,
+		});
 	}
 }

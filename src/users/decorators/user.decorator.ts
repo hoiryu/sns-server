@@ -7,16 +7,17 @@ import { UsersModel } from '~users/entities/users.entity';
 
 /**
  * Request 에서 User 추출
- * @return UserModel
+ * @param key UserModel 의 key
+ * @return UserModel or UserModel[data]
  */
 export const User = createParamDecorator(
-	(data: keyof UsersModel | undefined, context: ExecutionContext) => {
+	(key: keyof UsersModel | undefined, context: ExecutionContext) => {
 		const req = context.switchToHttp().getRequest();
 
 		const user = req.user as UsersModel;
 		if (!user) throw new InternalServerErrorException('AccessTokenGuard 는 필수');
 
-		if (data) return user[data];
+		if (key) return user[key];
 
 		return user;
 	},

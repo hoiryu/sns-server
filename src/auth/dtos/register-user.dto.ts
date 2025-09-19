@@ -1,9 +1,22 @@
 import { ApiProperty, PickType } from '@nestjs/swagger';
 import { UsersModel } from '~users/entities/users.entity';
 
-export class RegisterUserDto extends PickType(UsersModel, ['nickname', 'email', 'password']) {
+export class RegisterUserDto extends PickType(UsersModel, [
+	'name',
+	'nickname',
+	'email',
+	'password',
+]) {
 	@ApiProperty({
-		example: 'hoiryu',
+		example: '김아무개',
+		description: '본명 (2~20자)',
+		minLength: 2,
+		maxLength: 20,
+	})
+	name: string;
+
+	@ApiProperty({
+		example: '테스트 유저',
 		description: '닉네임 (2~20자)',
 		minLength: 2,
 		maxLength: 20,
