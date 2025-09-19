@@ -7,9 +7,9 @@ async function bootstrap() {
 
 	const swaggerConfig = new DocumentBuilder()
 		.setTitle('SNS')
-		.setDescription('SNS 용')
+		.setDescription('SNS 용 API 문서')
 		.setVersion('1.0')
-		.addTag('sns')
+		.addTag('SNS')
 		.build();
 	const documentFactory = () => SwaggerModule.createDocument(app, swaggerConfig);
 	SwaggerModule.setup('api', app, documentFactory);

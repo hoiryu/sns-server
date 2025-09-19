@@ -22,6 +22,8 @@
 		"strictBindCallApply": false,
 		"noFallthroughCasesInSwitch": false,
 		"paths": {
+			"~common/*": ["./src/common/*"],
+			"~auth/*": ["./src/auth/*"],
 			"~posts/*": ["./src/posts/*"],
 			"~users/*": ["./src/users/*"],
 			"~src/*": ["./src/*"],
