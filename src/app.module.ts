@@ -3,6 +3,13 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from '~auth/auth.module';
+import {
+	ENV_DB_DATABASE_KEY,
+	ENV_DB_HOST_KEY,
+	ENV_DB_PASSWORD_KEY,
+	ENV_DB_PORT_KEY,
+	ENV_DB_USERNAME_KEY,
+} from '~common/constants/env-keys.const';
 import { PostsModel } from '~posts/entities/posts.entity';
 import { PostsModule } from '~posts/posts.module';
 import { AppController } from '~src/app.controller';
@@ -19,13 +26,13 @@ import { CommonModule } from './common/common.module';
 		}),
 		TypeOrmModule.forRootAsync({
 			inject: [ConfigService],
-			useFactory: (config: ConfigService) => ({
+			useFactory: (configService: ConfigService) => ({
 				type: 'postgres',
-				host: config.get('DB_HOST', '127.0.0.1'),
-				port: config.get<number>('DB_PORT', 5432),
-				username: config.get('DB_USERNAME', 'postgres'),
-				password: config.get('DB_PASSWORD'),
-				database: config.get('DB_DATABASE', 'postgres'),
+				host: configService.get(ENV_DB_HOST_KEY),
+				port: configService.get<number>(ENV_DB_PORT_KEY),
+				username: configService.get(ENV_DB_USERNAME_KEY),
+				password: configService.get(ENV_DB_PASSWORD_KEY),
+				database: configService.get(ENV_DB_DATABASE_KEY),
 				entities: [PostsModel, UsersModel],
 				synchronize: true,
 			}),
@@ -39,8 +46,8 @@ import { CommonModule } from './common/common.module';
 	providers: [
 		AppService,
 		{
-			provide: APP_INTERCEPTOR,
-			useClass: ClassSerializerInterceptor,
+			provide: APP_INTERCEPTOR, // Global Interceptor
+			useClass: ClassSerializerInterceptor, // class-transformer 전역으로 적용
 		},
 	],
 })

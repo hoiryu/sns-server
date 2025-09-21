@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { RegisterUserDto } from '~auth/dtos/register-user.dto';
+import { ENV_HASH_ROUNDS_KEY, ENV_JWT_SECRET_KEY } from '~common/constants/env-keys.const';
 import { UsersModel } from '~users/entities/users.entity';
 import { UsersService } from '~users/users.service';
 
@@ -42,7 +43,7 @@ export class AuthService {
 	verifyToken(token: string) {
 		try {
 			return this.jwtService.verify(token, {
-				secret: this.configService.get<string>('JWT_SECRET_KEY'),
+				secret: this.configService.get(ENV_JWT_SECRET_KEY),
 			});
 		} catch (e) {
 			throw new UnauthorizedException('토큰이 만료됐거나 잘못된 토큰입니다.');
@@ -57,7 +58,7 @@ export class AuthService {
 	 */
 	rotateToken(token: string, isRefreshToken: boolean) {
 		const decodedToken = this.jwtService.verify(token, {
-			secret: this.configService.get<string>('JWT_SECRET_KEY'),
+			secret: this.configService.get(ENV_JWT_SECRET_KEY),
 			complete: true,
 		});
 
@@ -107,7 +108,7 @@ export class AuthService {
 		};
 
 		return this.jwtService.sign(payload, {
-			secret: this.configService.get<string>('JWT_SECRET_KEY'),
+			secret: this.configService.get(ENV_JWT_SECRET_KEY),
 			expiresIn: isRefreshToken ? 3600 : 300,
 		});
 	}
@@ -152,7 +153,7 @@ export class AuthService {
 	async registerWithEmail(user: RegisterUserDto) {
 		const hash = await bcrypt.hash(
 			user.password,
-			Number(this.configService.get<number>('HASH_ROUNDS_KEY')),
+			Number(this.configService.get<number>(ENV_HASH_ROUNDS_KEY)),
 		);
 
 		const newUser = await this.usersService.createUser({
