@@ -6,7 +6,7 @@ export const PROJECT_ROOT_PATH = process.cwd();
 export const PUBLIC_FOLDER_NAME = 'public';
 // 포스트 이미지 폴더
 export const POSTS_FOLDER_NAME = 'posts';
-// 임시 폴더
+// 임시 이미지 폴더
 export const TEMP_FOLDER_NAME = 'temp';
 
 // root/public/
