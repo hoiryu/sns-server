@@ -12,7 +12,9 @@ export class CommonService {
 
 	/**
 	 * Query String 을 기반으로 paginate
-	 *
+	 * @param dto BasePaginationDto
+	 * @param repository DB
+	 * @param overrideFindOptions find 메서드 옵션
 	 */
 	paginate<T extends BaseModel>(
 		dto: BasePaginationDto,
@@ -61,32 +63,23 @@ export class CommonService {
 			...findOptions,
 			...overrideFindOptions,
 		});
-
 		const lastItem =
 			results.length > 0 && results.length === dto.take ? results[results.length - 1] : null;
-
 		const protocol = this.configService.get<string>(ENV_PROTOCOL_KEY);
 		const host = this.configService.get<string>(ENV_HOST_KEY);
 		const port = this.configService.get<string>(ENV_PORT_KEY);
-
 		const nextUrl = lastItem && new URL(`${protocol}://${host}:${port}/${path}`);
 
 		if (nextUrl) {
 			for (const key of Object.keys(dto)) {
-				if (dto[key]) {
-					if (key !== 'where__id__more_than' && key !== 'where__id__less_than') {
-						nextUrl.searchParams.append(key, dto[key]);
-					}
-				}
+				if (!dto[key] || key === 'where__id__more_than' || key === 'where__id__less_than')
+					continue;
+
+				nextUrl.searchParams.append(key, dto[key]);
 			}
 
-			let key: string | null = null;
-
-			if (dto.order__createdAt === 'ASC') {
-				key = 'where__id__more_than';
-			} else {
-				key = 'where__id__less_than';
-			}
+			const key =
+				dto.order__createdAt === 'ASC' ? 'where__id__more_than' : 'where__id__less_than';
 
 			nextUrl.searchParams.append(key, lastItem.id.toString());
 		}
@@ -114,7 +107,9 @@ export class CommonService {
 
 		for (const [key, value] of Object.entries(dto)) {
 			if (key.startsWith('where__')) {
+				// ASC 인데 less_than 은 조건에 맞지 않음
 				if (findOrderValue === 'ASC' && key.includes('less_than')) continue;
+				// DESC 인데 more_than 은 조건에 맞지 않음
 				if (findOrderValue === 'DESC' && key.includes('more_than')) continue;
 
 				where = {
@@ -146,6 +141,10 @@ export class CommonService {
 	): FindOptionsWhere<T> | FindOptionsOrder<T> {
 		const options: FindOptionsWhere<T> = {};
 		const split = key.split('__');
+		// Primary key 를 제외한 Key 는 undefined 인 경우 where 제외
+		if (key !== 'where__id__less_than' && key !== 'where__id__more_than' && value === undefined)
+			return options;
+
 		if (split.length !== 2 && split.length !== 3)
 			throw new BadRequestException(`Key length must be 2 or 3 (Key: ${key})`);
 
@@ -156,8 +155,12 @@ export class CommonService {
 		} else {
 			const [_, field, operator] = split;
 
-			if (value == null) options[field] = FILTER_MAPPER['more_than'](0);
-			else options[field] = FILTER_MAPPER[operator](value);
+			if (operator === 'i_like') {
+				options[field] = FILTER_MAPPER[operator](`%${value}%`);
+			} else {
+				if (value === undefined) options[field] = FILTER_MAPPER['more_than_or_equal'](0);
+				else options[field] = FILTER_MAPPER[operator](value);
+			}
 		}
 
 		return options;

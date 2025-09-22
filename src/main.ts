@@ -13,8 +13,10 @@ async function bootstrap() {
 		new ValidationPipe({
 			transform: true,
 			transformOptions: {
-				enableImplicitConversion: true, // class validate 적용시 해당 Type 으로 자동 transpomer
+				enableImplicitConversion: true,
 			},
+			whitelist: true,
+			forbidNonWhitelisted: true,
 		}),
 	);
 

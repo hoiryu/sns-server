@@ -17,6 +17,12 @@ export class PostsModel extends BaseModel {
 	@Column()
 	content: string;
 
+	@ApiProperty({ example: '/image.jpg', description: '포스트 본문의 이미지' })
+	@Column({
+		nullable: true,
+	})
+	image?: string;
+
 	@ApiProperty({ description: '좋아요 갯수' })
 	@Column()
 	likeCount: number;
