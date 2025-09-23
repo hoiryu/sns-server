@@ -16,6 +16,9 @@ import {
 	Not,
 } from 'typeorm';
 
+/**
+ * TypeORM Utilities Mapper
+ */
 export const FILTER_MAPPER = {
 	not: Not,
 	less_than: LessThan,

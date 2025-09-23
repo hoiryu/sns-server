@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ENV_PORT_KEY } from '~common/constants/env-keys.const';
+import { HttpExceptionFilter } from '~common/exception-filters/http.exception-filter';
 import { AppModule } from '~src/app.module';
 
 async function bootstrap() {
@@ -19,6 +20,9 @@ async function bootstrap() {
 			forbidNonWhitelisted: true,
 		}),
 	);
+
+	// 전역으로 ExceptionFilter 적용
+	app.useGlobalFilters(new HttpExceptionFilter());
 
 	const swaggerConfig = new DocumentBuilder()
 		.setTitle('SNS')

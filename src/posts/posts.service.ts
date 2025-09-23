@@ -1,25 +1,18 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { promises } from 'fs';
-import { basename, join } from 'path';
-import { QueryRunner, Repository } from 'typeorm';
+import { type QueryRunner as QR, Repository } from 'typeorm';
 import { CommonService } from '~common/common.service';
-import { POST_IMAGE_PATH, TEMPLATES_FOLDER_PATH } from '~common/constants/path.const';
-import { ImagesModel } from '~common/entities/images.entity';
 import { DEFAULT_POST_FIND_OPTIONS } from '~posts/constants/default-post-find-options.const';
 import { CreatePostDto } from '~posts/dtos/create-post.dto';
 import { PaginatePostDto } from '~posts/dtos/paginte-post.dto';
 import { UpdatePostDto } from '~posts/dtos/update-post.dto';
 import { PostsModel } from '~posts/entities/posts.entity';
-import { CreatePostImageDto } from '~posts/image/dtos/create-image.dto';
 
 @Injectable()
 export class PostsService {
 	constructor(
 		@InjectRepository(PostsModel)
 		private readonly postsRepository: Repository<PostsModel>,
-		@InjectRepository(ImagesModel)
-		private readonly imageRepository: Repository<ImagesModel>,
 		private readonly commonService: CommonService,
 	) {}
 	/**
@@ -35,7 +28,7 @@ export class PostsService {
 		}
 	}
 
-	getRepository(qr?: QueryRunner) {
+	getRepository(qr?: QR) {
 		return qr ? qr.manager.getRepository<PostsModel>(PostsModel) : this.postsRepository;
 	}
 
@@ -45,7 +38,7 @@ export class PostsService {
 	 * @param dto CreatePostDto
 	 * @param qr QueryRunner
 	 */
-	async createPost(authorId: number, dto: CreatePostDto, qr?: QueryRunner) {
+	async createPost(authorId: number, dto: CreatePostDto, qr?: QR) {
 		const repository = this.getRepository(qr);
 
 		const post = repository.create({
@@ -61,30 +54,6 @@ export class PostsService {
 		const newPost = await repository.save(post);
 
 		return newPost;
-	}
-
-	/**
-	 * 이미지 업로드
-	 * @param dto CreatePostImageDto
-	 */
-	async createPostImage(dto: CreatePostImageDto) {
-		const tempFilePath = join(TEMPLATES_FOLDER_PATH, dto.path);
-
-		try {
-			await promises.access(tempFilePath);
-		} catch (e) {
-			throw new BadRequestException('존재하지 않는 파일 입니다.');
-		}
-
-		const filename = basename(tempFilePath);
-		const newPath = join(POST_IMAGE_PATH, filename);
-
-		const result = await this.imageRepository.save(dto);
-
-		// templates -> posts 로 파일 이동
-		await promises.rename(tempFilePath, newPath);
-
-		return result;
 	}
 
 	/**
@@ -106,9 +75,11 @@ export class PostsService {
 	/**
 	 * Post 가져오기 (ID)
 	 * @param id post.id
+	 * @param qr QueryRunner
 	 */
-	async getPostById(id: number) {
-		const post = await this.postsRepository.findOne({
+	async getPostById(id: number, qr?: QR) {
+		const repository = this.getRepository(qr);
+		const post = await repository.findOne({
 			...DEFAULT_POST_FIND_OPTIONS,
 			where: {
 				id,

@@ -8,17 +8,20 @@ import {
 	Post,
 	Query,
 	UseGuards,
+	UseInterceptors,
 } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
+import { type QueryRunner as QR } from 'typeorm';
 import { AccessTokenGuard } from '~auth/guards/bearer-token.guard';
+import { QueryRunner } from '~common/decorators/query-runner.decorator';
 import { EImagesModelType } from '~common/entities/images.entity';
+import { LogInterceptor } from '~common/interceptors/log.interceptor';
+import { TransactionInterceptor } from '~common/interceptors/transaction.interceptor';
 import { CreatePostDto } from '~posts/dtos/create-post.dto';
 import { PaginatePostDto } from '~posts/dtos/paginte-post.dto';
 import { PostDto } from '~posts/dtos/post.dto';
 import { UpdatePostDto } from '~posts/dtos/update-post.dto';
-import { PostsModel } from '~posts/entities/posts.entity';
+import { PostsImagesService } from '~posts/image/posts-images.service';
 import { PostsService } from '~posts/posts.service';
 import { User } from '~users/decorators/user.decorator';
 import { UserDto } from '~users/dtos/user.dto';
@@ -28,9 +31,7 @@ import { UserDto } from '~users/dtos/user.dto';
 export class PostsController {
 	constructor(
 		private readonly postsService: PostsService,
-		@InjectRepository(PostsModel)
-		private readonly postsRepository: Repository<PostsModel>,
-		private readonly dataSource: DataSource,
+		private readonly postsImagesService: PostsImagesService,
 	) {}
 
 	// POST /posts/random
@@ -46,38 +47,33 @@ export class PostsController {
 	@ApiOkResponse({ type: () => PostDto })
 	@Post()
 	@UseGuards(AccessTokenGuard)
-	async postPosts(@User('id') userId: number, @Body() body: CreatePostDto) {
-		// transaction 생성
-		const qr = this.dataSource.createQueryRunner();
-		// transaction 연결
-		await qr.connect();
-		await qr.startTransaction();
+	@UseInterceptors(TransactionInterceptor)
+	async postPosts(
+		@User('id') userId: number,
+		@Body() body: CreatePostDto,
+		@QueryRunner() qr: QR,
+	) {
+		// 이미지가 없는 상태로 post 생성
+		const post = await this.postsService.createPost(userId, body, qr);
 
-		try {
-			// 이미지가 없는 상태로 post 생성
-			const post = await this.postsService.createPost(userId, body, qr);
-
-			for (let i = 0; i < body.images.length; i++) {
-				await this.postsService.createPostImage({
+		for (let i = 0; i < body.images.length; i++) {
+			await this.postsImagesService.createImage(
+				{
 					post,
 					order: i,
 					path: body.images[i],
 					type: EImagesModelType.POST_IMAGE,
-				});
-			}
-
-			await qr.commitTransaction();
-			await qr.release();
-
-			return this.postsService.getPostById(post.id);
-		} catch (e) {
-			await qr.rollbackTransaction();
-			await qr.release();
+				},
+				qr,
+			);
 		}
+
+		return this.postsService.getPostById(post.id, qr);
 	}
 
 	@ApiOperation({ summary: 'Post 가져오기 (Query String)' })
 	@Get()
+	@UseInterceptors(LogInterceptor)
 	getPosts(@Query() query: PaginatePostDto) {
 		return this.postsService.paginatePosts(query);
 	}
