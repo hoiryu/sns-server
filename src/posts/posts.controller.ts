@@ -11,8 +11,9 @@ import {
 } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { AccessTokenGuard } from '~auth/guards/bearer-token.guard';
+import { EImagesModelType } from '~common/entities/images.entity';
 import { CreatePostDto } from '~posts/dtos/create-post.dto';
 import { PaginatePostDto } from '~posts/dtos/paginte-post.dto';
 import { PostDto } from '~posts/dtos/post.dto';
@@ -29,7 +30,9 @@ export class PostsController {
 		private readonly postsService: PostsService,
 		@InjectRepository(PostsModel)
 		private readonly postsRepository: Repository<PostsModel>,
+		private readonly dataSource: DataSource,
 	) {}
+
 	// POST /posts/random
 	@Post('random')
 	@UseGuards(AccessTokenGuard)
@@ -39,12 +42,38 @@ export class PostsController {
 		return true;
 	}
 
-	@ApiOperation({ summary: '포스트 생성' })
+	@ApiOperation({ summary: 'Post 생성' })
 	@ApiOkResponse({ type: () => PostDto })
 	@Post()
 	@UseGuards(AccessTokenGuard)
 	async postPosts(@User('id') userId: number, @Body() body: CreatePostDto) {
-		return this.postsService.createPost(userId, body);
+		// transaction 생성
+		const qr = this.dataSource.createQueryRunner();
+		// transaction 연결
+		await qr.connect();
+		await qr.startTransaction();
+
+		try {
+			// 이미지가 없는 상태로 post 생성
+			const post = await this.postsService.createPost(userId, body, qr);
+
+			for (let i = 0; i < body.images.length; i++) {
+				await this.postsService.createPostImage({
+					post,
+					order: i,
+					path: body.images[i],
+					type: EImagesModelType.POST_IMAGE,
+				});
+			}
+
+			await qr.commitTransaction();
+			await qr.release();
+
+			return this.postsService.getPostById(post.id);
+		} catch (e) {
+			await qr.rollbackTransaction();
+			await qr.release();
+		}
 	}
 
 	@ApiOperation({ summary: 'Post 가져오기 (Query String)' })

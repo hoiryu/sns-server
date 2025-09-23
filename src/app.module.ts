@@ -1,8 +1,10 @@
 import { ClassSerializerInterceptor, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_INTERCEPTOR } from '@nestjs/core';
+import { ServeStaticModule } from '@nestjs/serve-static';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from '~auth/auth.module';
+import { CommonModule } from '~common/common.module';
 import {
 	ENV_DB_DATABASE_KEY,
 	ENV_DB_HOST_KEY,
@@ -10,21 +12,26 @@ import {
 	ENV_DB_PORT_KEY,
 	ENV_DB_USERNAME_KEY,
 } from '~common/constants/env-keys.const';
+import { PUBLIC_FOLDER_PATH } from '~common/constants/path.const';
+import { ImagesModel } from '~common/entities/images.entity';
 import { PostsModel } from '~posts/entities/posts.entity';
 import { PostsModule } from '~posts/posts.module';
 import { AppController } from '~src/app.controller';
 import { AppService } from '~src/app.service';
 import { UsersModel } from '~users/entities/users.entity';
 import { UsersModule } from '~users/users.module';
-import { CommonModule } from './common/common.module';
-
 @Module({
 	imports: [
 		ConfigModule.forRoot({
 			isGlobal: true,
 			envFilePath: ['.env.local', '.env'],
 		}),
+		ServeStaticModule.forRoot({
+			rootPath: PUBLIC_FOLDER_PATH, // Static File Serving
+			serveRoot: '/public',
+		}),
 		TypeOrmModule.forRootAsync({
+			// DB
 			inject: [ConfigService],
 			useFactory: (configService: ConfigService) => ({
 				type: 'postgres',
@@ -33,14 +40,14 @@ import { CommonModule } from './common/common.module';
 				username: configService.get(ENV_DB_USERNAME_KEY),
 				password: configService.get(ENV_DB_PASSWORD_KEY),
 				database: configService.get(ENV_DB_DATABASE_KEY),
-				entities: [PostsModel, UsersModel],
+				entities: [PostsModel, UsersModel, ImagesModel],
 				synchronize: true,
 			}),
 		}),
+		CommonModule,
+		AuthModule,
 		PostsModule,
 		UsersModule,
-		AuthModule,
-		CommonModule,
 	],
 	controllers: [AppController],
 	providers: [

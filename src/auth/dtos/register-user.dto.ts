@@ -5,7 +5,7 @@ import { stringValidationMessage } from '~common/validation-message/string-valid
 import { UsersModel } from '~users/entities/users.entity';
 
 export class RegisterUserDto extends PickType(UsersModel, ['name', 'nickname', 'email']) {
-	@ApiProperty({ example: '1q2w3e4r', description: '비밀번호', minLength: 4, maxLength: 12 })
+	@ApiProperty({ title: '비밀번호', minLength: 4, maxLength: 12, example: '1q2w3e4r' })
 	@IsString({ message: stringValidationMessage })
 	@Length(4, 12, { message: lengthValidationMessage })
 	password: string;

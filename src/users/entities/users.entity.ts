@@ -11,24 +11,24 @@ import { ERoles } from '~users/constants/roles.constant';
 
 @Entity()
 export class UsersModel extends BaseModel {
-	@ApiProperty({ example: '김아무개', description: '실명' })
+	@ApiProperty({ title: '실명', example: '김아무개' })
 	@IsString({ message: stringValidationMessage })
 	@Column({ length: 20 })
 	name: string;
 
-	@ApiProperty({ example: '테스트', description: '별명' })
+	@ApiProperty({ title: '별명', example: '아무무' })
 	@IsString({ message: stringValidationMessage })
 	@Length(1, 20, { message: lengthValidationMessage })
 	@Column({ unique: true, length: 20 })
 	nickname: string;
 
-	@ApiProperty({ example: 'test@gmail.com', description: '이메일' })
+	@ApiProperty({ title: '이메일', example: 'test@gmail.com' })
 	@IsString({ message: stringValidationMessage })
 	@IsEmail({}, { message: emailValidationMessage })
 	@Column({ unique: true })
 	email: string;
 
-	@ApiProperty({ enum: ERoles, example: ERoles.USER, description: '권한' })
+	@ApiProperty({ title: '권한', enum: ERoles, example: ERoles.USER })
 	@Column({ enum: Object.values(ERoles), default: ERoles.USER })
 	role: ERoles;
 

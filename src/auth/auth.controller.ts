@@ -34,6 +34,12 @@ export class AuthController {
 		};
 	}
 
+	@ApiOperation({ summary: '유저 생성' })
+	@Post('register/email')
+	postRegisterEmail(@Body() body: RegisterUserDto) {
+		return this.authService.registerWithEmail(body);
+	}
+
 	@ApiOperation({ summary: '유저 로그인' })
 	@Post('signin/email')
 	@UseGuards(BasicTokenGuard)
@@ -42,11 +48,5 @@ export class AuthController {
 		const token = this.authService.extractTokenFromHeader(rawToken, false);
 		const credentials = this.authService.decodeBasicToken(token);
 		return this.authService.signinWithEmail(credentials);
-	}
-
-	@ApiOperation({ summary: '유저 생성' })
-	@Post('register/email')
-	postRegisterEmail(@Body() body: RegisterUserDto) {
-		return this.authService.registerWithEmail(body);
 	}
 }
