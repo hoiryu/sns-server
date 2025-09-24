@@ -3,7 +3,7 @@ import { IsEnum, IsInt, IsOptional, IsString } from 'class-validator';
 import { join } from 'path';
 import { Column, Entity, ManyToOne } from 'typeorm';
 import { POST_PUBLIC_IMAGE_PATH } from '~common/constants/path.const';
-import { PostsModel } from '~posts/entities/posts.entity';
+import { PostsModel } from '~posts/entity/posts.entity';
 import { BaseModel } from './base.entity';
 
 export enum EImagesModelType {

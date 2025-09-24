@@ -4,7 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { RegisterUserDto } from '~auth/dtos/register-user.dto';
 import { ENV_HASH_ROUNDS_KEY, ENV_JWT_SECRET_KEY } from '~common/constants/env-keys.const';
-import { UsersModel } from '~users/entities/users.entity';
+import { UsersModel } from '~users/entity/users.entity';
 import { UsersService } from '~users/users.service';
 
 @Injectable()

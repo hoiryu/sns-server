@@ -1,12 +1,14 @@
 import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 import { IsEmail, IsString, Length } from 'class-validator';
-import { Column, Entity, OneToMany } from 'typeorm';
+import { Column, Entity, ManyToMany, OneToMany } from 'typeorm';
+import { ChatsModel } from '~chats/entity/chats.entity';
+import { MessagesModel } from '~chats/messages/entity/messages.entity';
 import { BaseModel } from '~common/entities/base.entity';
 import { emailValidationMessage } from '~common/validation-message/email-validation.message';
 import { lengthValidationMessage } from '~common/validation-message/length-validation.message';
 import { stringValidationMessage } from '~common/validation-message/string-validation.message';
-import { PostsModel } from '~posts/entities/posts.entity';
+import { PostsModel } from '~posts/entity/posts.entity';
 import { ERoles } from '~users/constants/roles.constant';
 
 @Entity()
@@ -42,4 +44,10 @@ export class UsersModel extends BaseModel {
 	@ApiHideProperty()
 	@OneToMany(() => PostsModel, post => post.author)
 	posts: PostsModel[];
+
+	@ManyToMany(() => ChatsModel, chat => chat.users)
+	chats: ChatsModel[];
+
+	@OneToMany(() => MessagesModel, message => message.author)
+	messages: MessagesModel;
 }

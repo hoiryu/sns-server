@@ -4,7 +4,7 @@ import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 import { BaseModel } from '~common/entities/base.entity';
 import { ImagesModel } from '~common/entities/images.entity';
 import { stringValidationMessage } from '~common/validation-message/string-validation.message';
-import { UsersModel } from '~users/entities/users.entity';
+import { UsersModel } from '~users/entity/users.entity';
 
 @Entity()
 export class PostsModel extends BaseModel {

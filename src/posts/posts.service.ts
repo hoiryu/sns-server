@@ -6,7 +6,7 @@ import { DEFAULT_POST_FIND_OPTIONS } from '~posts/constants/default-post-find-op
 import { CreatePostDto } from '~posts/dtos/create-post.dto';
 import { PaginatePostDto } from '~posts/dtos/paginte-post.dto';
 import { UpdatePostDto } from '~posts/dtos/update-post.dto';
-import { PostsModel } from '~posts/entities/posts.entity';
+import { PostsModel } from '~posts/entity/posts.entity';
 
 @Injectable()
 export class PostsService {
@@ -15,6 +15,7 @@ export class PostsService {
 		private readonly postsRepository: Repository<PostsModel>,
 		private readonly commonService: CommonService,
 	) {}
+
 	/**
 	 * 테스트용 Seeding
 	 * @param userId user.id
@@ -28,6 +29,10 @@ export class PostsService {
 		}
 	}
 
+	/**
+	 * Repository 가져오기
+	 * @description queryRunner.manager or this.repository
+	 */
 	getRepository(qr?: QR) {
 		return qr ? qr.manager.getRepository<PostsModel>(PostsModel) : this.postsRepository;
 	}
@@ -57,7 +62,7 @@ export class PostsService {
 	}
 
 	/**
-	 * Post 가져오기 (Query String)
+	 * Posts 가져오기 (Query String)
 	 * @Description dto.page 가 있을 경우 Page Paginate, dto.page 가 없을 경우 Cursor Paginate
 	 * @param dto PaginatePostDto
 	 */
