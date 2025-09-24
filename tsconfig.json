@@ -26,6 +26,7 @@
 			"~common/*": ["./src/common/*"],
 			"~posts/*": ["./src/posts/*"],
 			"~users/*": ["./src/users/*"],
+			"~chats/*": ["./src/chats/*"],
 			"~src/*": ["./src/*"],
 			"~/*": ["./*"]
 		}

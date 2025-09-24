@@ -20,6 +20,7 @@ import { AppController } from '~src/app.controller';
 import { AppService } from '~src/app.service';
 import { UsersModel } from '~users/entities/users.entity';
 import { UsersModule } from '~users/users.module';
+import { ChatsModule } from './chats/chats.module';
 @Module({
 	imports: [
 		ConfigModule.forRoot({
@@ -48,6 +49,7 @@ import { UsersModule } from '~users/users.module';
 		AuthModule,
 		PostsModule,
 		UsersModule,
+		ChatsModule,
 	],
 	controllers: [AppController],
 	providers: [
