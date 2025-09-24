@@ -18,13 +18,13 @@ export class MessagesService {
 	 * Message 생성하기
 	 * @param dto CreateMessageDto
 	 */
-	async createMessage(dto: CreateMessageDto) {
+	async createMessage(dto: CreateMessageDto, authorId: number) {
 		const message = await this.messagesRepository.save({
 			chat: {
-				id: dto.authorId,
+				id: authorId,
 			},
 			author: {
-				id: dto.authorId,
+				id: authorId,
 			},
 			message: dto.message,
 		});

@@ -19,15 +19,15 @@ export class UsersModel extends BaseModel {
 	name: string;
 
 	@ApiProperty({ title: '별명', example: '아무무' })
+	@Column({ unique: true, length: 20 })
 	@IsString({ message: stringValidationMessage })
 	@Length(1, 20, { message: lengthValidationMessage })
-	@Column({ unique: true, length: 20 })
 	nickname: string;
 
 	@ApiProperty({ title: '이메일', example: 'test@gmail.com' })
+	@Column({ unique: true })
 	@IsString({ message: stringValidationMessage })
 	@IsEmail({}, { message: emailValidationMessage })
-	@Column({ unique: true })
 	email: string;
 
 	@ApiProperty({ title: '권한', enum: ERoles, example: ERoles.USER })
@@ -41,7 +41,6 @@ export class UsersModel extends BaseModel {
 	})
 	password: string;
 
-	@ApiHideProperty()
 	@OneToMany(() => PostsModel, post => post.author)
 	posts: PostsModel[];
 
