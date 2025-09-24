@@ -6,7 +6,7 @@ import { v4 as uuid } from 'uuid';
 import { AuthModule } from '~auth/auth.module';
 import { CommonController } from '~common/common.controller';
 import { CommonService } from '~common/common.service';
-import { TEMPLATES_FOLDER_PATH } from '~common/constants/path.const';
+import { TEMPLATES_FOLDER_PATH } from '~common/consts/path.const';
 import { UsersModule } from '~users/users.module';
 @Module({
 	imports: [

@@ -14,7 +14,7 @@ import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { type QueryRunner as QR } from 'typeorm';
 import { AccessTokenGuard } from '~auth/guards/bearer-token.guard';
 import { QueryRunner } from '~common/decorators/query-runner.decorator';
-import { EImagesModelType } from '~common/entities/images.entity';
+import { EImagesModelType } from '~common/entity/images.entity';
 import { LogInterceptor } from '~common/interceptors/log.interceptor';
 import { TransactionInterceptor } from '~common/interceptors/transaction.interceptor';
 import { CreatePostDto } from '~posts/dtos/create-post.dto';

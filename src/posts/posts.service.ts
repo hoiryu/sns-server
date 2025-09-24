@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { type QueryRunner as QR, Repository } from 'typeorm';
 import { CommonService } from '~common/common.service';
-import { DEFAULT_POST_FIND_OPTIONS } from '~posts/constants/default-post-find-options.const';
+import { DEFAULT_POST_FIND_OPTIONS } from '~posts/consts/default-post-find-options.const';
 import { CreatePostDto } from '~posts/dtos/create-post.dto';
 import { PaginatePostDto } from '~posts/dtos/paginte-post.dto';
 import { UpdatePostDto } from '~posts/dtos/update-post.dto';

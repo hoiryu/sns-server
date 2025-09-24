@@ -1,9 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString } from 'class-validator';
 import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
-import { BaseModel } from '~common/entities/base.entity';
-import { ImagesModel } from '~common/entities/images.entity';
+import { BaseModel } from '~common/entity/base.entity';
+import { ImagesModel } from '~common/entity/images.entity';
 import { stringValidationMessage } from '~common/validation-message/string-validation.message';
+import { CommentsModel } from '~posts/comments/entity/comments.entity';
 import { UsersModel } from '~users/entity/users.entity';
 
 @Entity()
@@ -29,4 +30,7 @@ export class PostsModel extends BaseModel {
 	@ApiProperty({ title: '업로드된 이미지들', example: ['/public/posts/image.jpg'] })
 	@OneToMany(type => ImagesModel, image => image.post)
 	images?: ImagesModel[];
+
+	@OneToMany(() => CommentsModel, comment => comment.post)
+	comments: CommentsModel[];
 }

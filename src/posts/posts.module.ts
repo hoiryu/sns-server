@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from '~auth/auth.module';
 import { CommonModule } from '~common/common.module';
-import { ImagesModel } from '~common/entities/images.entity';
+import { ImagesModel } from '~common/entity/images.entity';
 import { PostsModel } from '~posts/entity/posts.entity';
 import { PostsImagesService } from '~posts/image/posts-images.service';
 import { UsersModule } from '~users/users.module';

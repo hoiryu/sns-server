@@ -2,7 +2,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { ENV_PORT_KEY } from '~common/constants/env-keys.const';
+import { ENV_PORT_KEY } from '~common/consts/env-keys.const';
 import { HttpExceptionFilter } from '~common/exception-filters/http.exception-filter';
 import { AppModule } from '~src/app.module';
 

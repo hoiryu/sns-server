@@ -1,10 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { FindManyOptions, FindOptionsOrder, FindOptionsWhere, Repository } from 'typeorm';
-import { ENV_HOST_KEY, ENV_PORT_KEY, ENV_PROTOCOL_KEY } from '~common/constants/env-keys.const';
-import { FILTER_MAPPER } from '~common/constants/filter-mapper.const';
+import { ENV_HOST_KEY, ENV_PORT_KEY, ENV_PROTOCOL_KEY } from '~common/consts/env-keys.const';
+import { FILTER_MAPPER } from '~common/consts/filter-mapper.const';
 import { BasePaginationDto } from '~common/dtos/base-pagination.dto';
-import { BaseModel } from '~common/entities/base.entity';
+import { BaseModel } from '~common/entity/base.entity';
 
 @Injectable()
 export class CommonService {

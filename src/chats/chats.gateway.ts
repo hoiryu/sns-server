@@ -34,7 +34,7 @@ export class ChatsGateway implements OnGatewayConnection {
 	server: Server;
 
 	async handleConnection(socket: Socket & { user: UsersModel }) {
-		console.info(`on connect called : ${socket.id}`);
+		console.info(`on connect called: ${socket.id}`);
 
 		const headers = socket.handshake.headers;
 		const rawToken = headers['authorization']!;

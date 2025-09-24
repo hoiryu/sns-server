@@ -3,8 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { promises } from 'fs';
 import { basename, join } from 'path';
 import { QueryRunner, Repository } from 'typeorm';
-import { POST_IMAGE_PATH, TEMPLATES_FOLDER_PATH } from '~common/constants/path.const';
-import { ImagesModel } from '~common/entities/images.entity';
+import { POST_IMAGE_PATH, TEMPLATES_FOLDER_PATH } from '~common/consts/path.const';
+import { ImagesModel } from '~common/entity/images.entity';
 import { CreatePostImageDto } from '~posts/image/dtos/create-image.dto';
 
 @Injectable()

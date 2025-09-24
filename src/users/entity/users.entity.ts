@@ -4,10 +4,11 @@ import { IsEmail, IsString, Length } from 'class-validator';
 import { Column, Entity, ManyToMany, OneToMany } from 'typeorm';
 import { ChatsModel } from '~chats/entity/chats.entity';
 import { MessagesModel } from '~chats/messages/entity/messages.entity';
-import { BaseModel } from '~common/entities/base.entity';
+import { BaseModel } from '~common/entity/base.entity';
 import { emailValidationMessage } from '~common/validation-message/email-validation.message';
 import { lengthValidationMessage } from '~common/validation-message/length-validation.message';
 import { stringValidationMessage } from '~common/validation-message/string-validation.message';
+import { CommentsModel } from '~posts/comments/entity/comments.entity';
 import { PostsModel } from '~posts/entity/posts.entity';
 import { ERoles } from '~users/constants/roles.constant';
 
@@ -49,4 +50,7 @@ export class UsersModel extends BaseModel {
 
 	@OneToMany(() => MessagesModel, message => message.author)
 	messages: MessagesModel;
+
+	@OneToMany(() => CommentsModel, comment => comment.author)
+	comments: CommentsModel[];
 }

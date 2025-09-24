@@ -1,6 +1,6 @@
 import { Entity, JoinTable, ManyToMany, OneToMany } from 'typeorm';
 import { MessagesModel } from '~chats/messages/entity/messages.entity';
-import { BaseModel } from '~common/entities/base.entity';
+import { BaseModel } from '~common/entity/base.entity';
 import { UsersModel } from '~users/entity/users.entity';
 
 @Entity()
