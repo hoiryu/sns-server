@@ -8,6 +8,7 @@ import {
 	Patch,
 	Post,
 	Query,
+	UseGuards,
 	UseInterceptors,
 } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -21,6 +22,7 @@ import { CreatePostDto } from '~posts/dtos/create-post.dto';
 import { PaginatePostDto } from '~posts/dtos/paginte-post.dto';
 import { PostDto } from '~posts/dtos/post.dto';
 import { UpdatePostDto } from '~posts/dtos/update-post.dto';
+import { IsPostMineOrAdminGuard } from '~posts/guards/is-post-mine-or-admin.guard';
 import { PostsImagesService } from '~posts/image/posts-images.service';
 import { PostsService } from '~posts/posts.service';
 import { ERoles } from '~users/consts/roles.const';
@@ -80,21 +82,22 @@ export class PostsController {
 	}
 
 	@ApiOperation({ summary: 'Post 가져오기 (id)' })
-	@Get(':id')
+	@Get(':postId')
 	@IsPublic()
-	getPost(@Param('id', ParseIntPipe) id: number) {
-		return this.postsService.getPostById(id);
+	getPost(@Param('postId', ParseIntPipe) postId: number) {
+		return this.postsService.getPostById(postId);
 	}
 
 	@ApiOperation({ summary: 'Post 수정하기 (id)' })
-	@Patch(':id')
-	patchPost(@Param('id', ParseIntPipe) id: number, @Body() body: UpdatePostDto) {
+	@Patch(':postId')
+	@UseGuards(IsPostMineOrAdminGuard)
+	patchPost(@Param('postId', ParseIntPipe) id: number, @Body() body: UpdatePostDto) {
 		return this.postsService.updatePost(id, body);
 	}
 
-	@Delete(':id')
+	@Delete(':postId')
 	@Roles(ERoles.ADMIN)
-	deletePost(@Param('id', ParseIntPipe) id: number) {
+	deletePost(@Param('postId', ParseIntPipe) id: number) {
 		return this.postsService.deletePost(id);
 	}
 }

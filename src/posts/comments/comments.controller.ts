@@ -8,12 +8,10 @@ import {
 	Patch,
 	Post,
 	Query,
-	UseGuards,
 	UseInterceptors,
 } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
 import { type QueryRunner } from 'typeorm';
-import { AccessTokenGuard } from '~auth/guards/bearer-token.guard';
 import { IsPublic } from '~common/decorators/is-public.decorator';
 import { Runner } from '~common/decorators/query-runner.decorator';
 import { TransactionInterceptor } from '~common/interceptors/transaction.interceptor';
@@ -34,7 +32,6 @@ export class CommentsController {
 
 	@ApiOperation({ summary: 'Comment 생성하기' })
 	@Post()
-	@UseGuards(AccessTokenGuard)
 	@UseInterceptors(TransactionInterceptor)
 	async postComment(
 		@Param('postId', ParseIntPipe) postId: number,

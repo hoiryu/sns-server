@@ -174,4 +174,23 @@ export class PostsService {
 
 		return id;
 	}
+
+	/**
+	 * 작성자와 Post 가 일치하는지 체크
+	 * @param userId user.id
+	 * @param postId post.id
+	 */
+	async isPostMine(userId: number, postId: number) {
+		return this.postsRepository.exists({
+			where: {
+				id: postId,
+				author: {
+					id: userId,
+				},
+			},
+			relations: {
+				author: true,
+			},
+		});
+	}
 }
