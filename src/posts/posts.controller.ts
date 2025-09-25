@@ -1,19 +1,19 @@
 import {
 	Body,
 	Controller,
+	Delete,
 	Get,
 	Param,
 	ParseIntPipe,
 	Patch,
 	Post,
 	Query,
-	UseGuards,
 	UseInterceptors,
 } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { type QueryRunner as QR } from 'typeorm';
-import { AccessTokenGuard } from '~auth/guards/bearer-token.guard';
-import { QueryRunner } from '~common/decorators/query-runner.decorator';
+import { type QueryRunner } from 'typeorm';
+import { IsPublic } from '~common/decorators/is-public.decorator';
+import { Runner } from '~common/decorators/query-runner.decorator';
 import { EImagesModelType } from '~common/entity/images.entity';
 import { LogInterceptor } from '~common/interceptors/log.interceptor';
 import { TransactionInterceptor } from '~common/interceptors/transaction.interceptor';
@@ -23,6 +23,8 @@ import { PostDto } from '~posts/dtos/post.dto';
 import { UpdatePostDto } from '~posts/dtos/update-post.dto';
 import { PostsImagesService } from '~posts/image/posts-images.service';
 import { PostsService } from '~posts/posts.service';
+import { ERoles } from '~users/consts/roles.const';
+import { Roles } from '~users/decorators/roles.decorator';
 import { User } from '~users/decorators/user.decorator';
 import { UserDto } from '~users/dtos/user.dto';
 
@@ -34,9 +36,8 @@ export class PostsController {
 		private readonly postsImagesService: PostsImagesService,
 	) {}
 
-	// POST /posts/random
+	@ApiOperation({ summary: 'Posts 생성하기 (random)' })
 	@Post('random')
-	@UseGuards(AccessTokenGuard)
 	async postPostsRandom(@User() user: UserDto) {
 		await this.postsService.generatePosts(user.id);
 
@@ -46,12 +47,11 @@ export class PostsController {
 	@ApiOperation({ summary: 'Post 생성' })
 	@ApiOkResponse({ type: () => PostDto })
 	@Post()
-	@UseGuards(AccessTokenGuard)
 	@UseInterceptors(TransactionInterceptor)
 	async postPosts(
 		@User('id') userId: number,
 		@Body() body: CreatePostDto,
-		@QueryRunner() qr: QR,
+		@Runner() qr: QueryRunner,
 	) {
 		// 이미지가 없는 상태로 post 생성
 		const post = await this.postsService.createPost(userId, body, qr);
@@ -73,6 +73,7 @@ export class PostsController {
 
 	@ApiOperation({ summary: 'Post 가져오기 (Query String)' })
 	@Get()
+	@IsPublic()
 	@UseInterceptors(LogInterceptor)
 	getPosts(@Query() query: PaginatePostDto) {
 		return this.postsService.paginatePosts(query);
@@ -80,13 +81,20 @@ export class PostsController {
 
 	@ApiOperation({ summary: 'Post 가져오기 (id)' })
 	@Get(':id')
+	@IsPublic()
 	getPost(@Param('id', ParseIntPipe) id: number) {
 		return this.postsService.getPostById(id);
 	}
 
-	@ApiOperation({ summary: 'Post 수정하기 (postId)' })
-	@Patch(':postId')
-	patchPost(@Param('postId', ParseIntPipe) id: number, @Body() body: UpdatePostDto) {
+	@ApiOperation({ summary: 'Post 수정하기 (id)' })
+	@Patch(':id')
+	patchPost(@Param('id', ParseIntPipe) id: number, @Body() body: UpdatePostDto) {
 		return this.postsService.updatePost(id, body);
+	}
+
+	@Delete(':id')
+	@Roles(ERoles.ADMIN)
+	deletePost(@Param('id', ParseIntPipe) id: number) {
+		return this.postsService.deletePost(id);
 	}
 }

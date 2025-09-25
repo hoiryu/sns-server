@@ -1,8 +1,8 @@
-import { Controller, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Controller, Post, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiOkResponse, ApiOperation } from '@nestjs/swagger';
-import { AccessTokenGuard } from '~auth/guards/bearer-token.guard';
 import { CommonService } from '~common/common.service';
+import { IsPublic } from '~common/decorators/is-public.decorator';
 
 @Controller('common')
 export class CommonController {
@@ -15,7 +15,7 @@ export class CommonController {
 		}),
 	})
 	@Post('image')
-	@UseGuards(AccessTokenGuard)
+	@IsPublic()
 	@UseInterceptors(FileInterceptor('image'))
 	postImage(@UploadedFile() { filename }: Express.Multer.File) {
 		return {

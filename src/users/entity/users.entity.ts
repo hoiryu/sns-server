@@ -10,7 +10,7 @@ import { lengthValidationMessage } from '~common/validation-message/length-valid
 import { stringValidationMessage } from '~common/validation-message/string-validation.message';
 import { CommentsModel } from '~posts/comments/entity/comments.entity';
 import { PostsModel } from '~posts/entity/posts.entity';
-import { ERoles } from '~users/constants/roles.constant';
+import { ERoles } from '~users/consts/roles.const';
 
 @Entity()
 export class UsersModel extends BaseModel {

@@ -1,6 +1,13 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { FindManyOptions, FindOptionsOrder, FindOptionsWhere, Repository } from 'typeorm';
+import {
+	EntityTarget,
+	FindManyOptions,
+	FindOptionsOrder,
+	FindOptionsWhere,
+	QueryRunner,
+	Repository,
+} from 'typeorm';
 import { ENV_HOST_KEY, ENV_PORT_KEY, ENV_PROTOCOL_KEY } from '~common/consts/env-keys.const';
 import { FILTER_MAPPER } from '~common/consts/filter-mapper.const';
 import { BasePaginationDto } from '~common/dtos/base-pagination.dto';
@@ -9,6 +16,20 @@ import { BaseModel } from '~common/entity/base.entity';
 @Injectable()
 export class CommonService {
 	constructor(private readonly configService: ConfigService) {}
+
+	/**
+	 * Repository 가져오기 (queryRunner.manager or this.repository)
+	 * @param model EntityTarget<T>
+	 * @param repository Repository<T>
+	 * @param qr? QueryRunner
+	 */
+	getRepository<T extends BaseModel>(
+		model: EntityTarget<T>,
+		repository: Repository<T>,
+		qr?: QueryRunner,
+	) {
+		return qr ? qr.manager.getRepository<T>(model) : repository;
+	}
 
 	/**
 	 * Query String 을 기반으로 paginate

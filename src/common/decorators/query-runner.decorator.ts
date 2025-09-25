@@ -8,7 +8,7 @@ import {
  * Request 에서 queryRunner 추출
  * @description TransactionInterceptor 필수
  */
-export const QueryRunner = createParamDecorator((data, context: ExecutionContext) => {
+export const Runner = createParamDecorator((data, context: ExecutionContext) => {
 	const req = context.switchToHttp().getRequest();
 
 	if (!req.queryRunner) {

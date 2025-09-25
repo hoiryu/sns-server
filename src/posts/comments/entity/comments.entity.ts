@@ -1,6 +1,7 @@
 import { IsNumber, IsString } from 'class-validator';
 import { Column, Entity, ManyToOne } from 'typeorm';
 import { BaseModel } from '~common/entity/base.entity';
+import { stringValidationMessage } from '~common/validation-message/string-validation.message';
 import { PostsModel } from '~posts/entity/posts.entity';
 import { UsersModel } from '~users/entity/users.entity';
 
@@ -13,7 +14,7 @@ export class CommentsModel extends BaseModel {
 	post: PostsModel;
 
 	@Column()
-	@IsString()
+	@IsString({ message: stringValidationMessage })
 	comment: string;
 
 	@Column({

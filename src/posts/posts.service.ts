@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { type QueryRunner as QR, Repository } from 'typeorm';
+import { QueryRunner, Repository } from 'typeorm';
 import { CommonService } from '~common/common.service';
 import { DEFAULT_POST_FIND_OPTIONS } from '~posts/consts/default-post-find-options.const';
 import { CreatePostDto } from '~posts/dtos/create-post.dto';
@@ -30,11 +30,16 @@ export class PostsService {
 	}
 
 	/**
-	 * Repository 가져오기
-	 * @description queryRunner.manager or this.repository
+	 * Post 가 존재하는지 체크
+	 * @param id post.id
+	 * @return boolean
 	 */
-	getRepository(qr?: QR) {
-		return qr ? qr.manager.getRepository<PostsModel>(PostsModel) : this.postsRepository;
+	async checkPostExistsById(id: number) {
+		return this.postsRepository.exists({
+			where: {
+				id,
+			},
+		});
 	}
 
 	/**
@@ -43,8 +48,8 @@ export class PostsService {
 	 * @param dto CreatePostDto
 	 * @param qr QueryRunner
 	 */
-	async createPost(authorId: number, dto: CreatePostDto, qr?: QR) {
-		const repository = this.getRepository(qr);
+	async createPost(authorId: number, dto: CreatePostDto, qr?: QueryRunner) {
+		const repository = this.commonService.getRepository(PostsModel, this.postsRepository, qr);
 
 		const post = repository.create({
 			author: {
@@ -82,8 +87,8 @@ export class PostsService {
 	 * @param id post.id
 	 * @param qr QueryRunner
 	 */
-	async getPostById(id: number, qr?: QR) {
-		const repository = this.getRepository(qr);
+	async getPostById(id: number, qr?: QueryRunner) {
+		const repository = this.commonService.getRepository(PostsModel, this.postsRepository, qr);
 		const post = await repository.findOne({
 			...DEFAULT_POST_FIND_OPTIONS,
 			where: {
@@ -114,5 +119,59 @@ export class PostsService {
 		const newPost = await this.postsRepository.save(post);
 
 		return newPost;
+	}
+
+	/**
+	 * commentCount 증가하기
+	 * @param postId post.id
+	 * @param qr QueryRunner
+	 */
+	async incrementCommentCount(postId: number, qr?: QueryRunner) {
+		const repository = this.commonService.getRepository(PostsModel, this.postsRepository, qr);
+
+		await repository.increment(
+			{
+				id: postId,
+			},
+			'commentCount',
+			1,
+		);
+	}
+
+	/**
+	 * commentCount 감소하기
+	 * @param postId post.id
+	 * @param qr QueryRunner
+	 */
+	async decrementCommentCount(postId: number, qr?: QueryRunner) {
+		const repository = this.commonService.getRepository(PostsModel, this.postsRepository, qr);
+
+		await repository.decrement(
+			{
+				id: postId,
+			},
+			'commentCount',
+			1,
+		);
+	}
+
+	/**
+	 * Post 삭제하기
+	 * @param postId post.id
+	 */
+	async deletePost(id: number) {
+		const post = await this.postsRepository.findOne({
+			where: {
+				id,
+			},
+		});
+
+		if (!post) {
+			throw new NotFoundException(`Post 를 찾을 수 없습니다. id: ${id}`);
+		}
+
+		await this.postsRepository.delete(id);
+
+		return id;
 	}
 }

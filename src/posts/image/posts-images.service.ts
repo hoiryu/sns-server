@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { promises } from 'fs';
 import { basename, join } from 'path';
 import { QueryRunner, Repository } from 'typeorm';
+import { CommonService } from '~common/common.service';
 import { POST_IMAGE_PATH, TEMPLATES_FOLDER_PATH } from '~common/consts/path.const';
 import { ImagesModel } from '~common/entity/images.entity';
 import { CreatePostImageDto } from '~posts/image/dtos/create-image.dto';
@@ -12,11 +13,8 @@ export class PostsImagesService {
 	constructor(
 		@InjectRepository(ImagesModel)
 		private readonly imagesRepository: Repository<ImagesModel>,
+		private readonly commonService: CommonService,
 	) {}
-
-	getRepository(qr?: QueryRunner) {
-		return qr ? qr.manager.getRepository<ImagesModel>(ImagesModel) : this.imagesRepository;
-	}
 
 	/**
 	 * 이미지 업로드
@@ -24,7 +22,12 @@ export class PostsImagesService {
 	 * @param qr QueryRunner
 	 */
 	async createImage(dto: CreatePostImageDto, qr?: QueryRunner) {
-		const repository = this.getRepository(qr);
+		const repository = this.commonService.getRepository<ImagesModel>(
+			ImagesModel,
+			this.imagesRepository,
+			qr,
+		);
+
 		const tempFilePath = join(TEMPLATES_FOLDER_PATH, dto.path);
 
 		try {
