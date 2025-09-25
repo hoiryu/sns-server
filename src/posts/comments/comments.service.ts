@@ -140,4 +140,23 @@ export class CommentsService {
 
 		return commentId;
 	}
+
+	/**
+	 * 작성자와 Comment 가 일치하는지 체크
+	 * @param userId user.id
+	 * @param commentId comment.id
+	 */
+	async isCommentMine(userId: number, commentId: number) {
+		return this.commentsRepository.exists({
+			where: {
+				id: commentId,
+				author: {
+					id: userId,
+				},
+			},
+			relations: {
+				author: true,
+			},
+		});
+	}
 }

@@ -8,6 +8,7 @@ import {
 	Patch,
 	Post,
 	Query,
+	UseGuards,
 	UseInterceptors,
 } from '@nestjs/common';
 import { ApiOperation } from '@nestjs/swagger';
@@ -19,6 +20,7 @@ import { CommentsService } from '~posts/comments/comments.service';
 import { CreateCommentDto } from '~posts/comments/dtos/create-comment.dto';
 import { PaginateCommentDto } from '~posts/comments/dtos/paginate-comment.dto';
 import { UpdateCommentsDto } from '~posts/comments/dtos/update-comment.dto';
+import { IsCommentMineOrAdminGuard } from '~posts/comments/guards/is-comment-mine-or-admin.guard';
 import { PostsService } from '~posts/posts.service';
 import { User } from '~users/decorators/user.decorator';
 import { UsersModel } from '~users/entity/users.entity';
@@ -71,6 +73,7 @@ export class CommentsController {
 
 	@ApiOperation({ summary: 'Comment 삭제하기 (ID)' })
 	@Delete(':commentId')
+	@UseGuards(IsCommentMineOrAdminGuard)
 	@UseInterceptors(TransactionInterceptor)
 	async deleteComment(
 		@Param('commentId', ParseIntPipe) commentId: number,
