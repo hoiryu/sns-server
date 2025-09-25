@@ -81,20 +81,21 @@ export class PostsController {
 		return this.postsService.paginatePosts(query);
 	}
 
-	@ApiOperation({ summary: 'Post 가져오기 (id)' })
+	@ApiOperation({ summary: 'Post 가져오기 (postId)' })
 	@Get(':postId')
 	@IsPublic()
 	getPost(@Param('postId', ParseIntPipe) postId: number) {
 		return this.postsService.getPostById(postId);
 	}
 
-	@ApiOperation({ summary: 'Post 수정하기 (id)' })
+	@ApiOperation({ summary: 'Post 수정하기 (postId)' })
 	@Patch(':postId')
 	@UseGuards(IsPostMineOrAdminGuard)
 	patchPost(@Param('postId', ParseIntPipe) id: number, @Body() body: UpdatePostDto) {
 		return this.postsService.updatePost(id, body);
 	}
 
+	@ApiOperation({ summary: 'Post 삭제하기 (postId)' })
 	@Delete(':postId')
 	@Roles(ERoles.ADMIN)
 	deletePost(@Param('postId', ParseIntPipe) id: number) {

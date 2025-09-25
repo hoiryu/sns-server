@@ -11,6 +11,7 @@ import { stringValidationMessage } from '~common/validation-message/string-valid
 import { CommentsModel } from '~posts/comments/entity/comments.entity';
 import { PostsModel } from '~posts/entity/posts.entity';
 import { ERoles } from '~users/consts/roles.const';
+import { UserFollowersModel } from '~users/user-followers/entity/user-followers.entity';
 
 @Entity()
 export class UsersModel extends BaseModel {
@@ -53,4 +54,20 @@ export class UsersModel extends BaseModel {
 
 	@OneToMany(() => CommentsModel, comment => comment.author)
 	comments: CommentsModel[];
+
+	@OneToMany(() => UserFollowersModel, userFollower => userFollower.follower)
+	followers: UserFollowersModel[];
+
+	@OneToMany(() => UserFollowersModel, userFollower => userFollower.following)
+	following: UserFollowersModel[];
+
+	@Column({
+		default: 0,
+	})
+	followerCount: number;
+
+	@Column({
+		default: 0,
+	})
+	followingCount: number;
 }
