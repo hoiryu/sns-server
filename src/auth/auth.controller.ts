@@ -40,7 +40,7 @@ export class AuthController {
 	@ApiOperation({ summary: '유저 생성' })
 	@Post('register/email')
 	@IsPublic()
-	postRegisterEmail(@Body() body: RegisterUserDto) {
+	async postRegisterEmail(@Body() body: RegisterUserDto) {
 		return this.authService.registerWithEmail(body);
 	}
 

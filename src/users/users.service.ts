@@ -28,7 +28,7 @@ export class UsersService {
 		});
 
 		if (nicknameExists)
-			throw new BadRequestException(`이미 존재합니다. nickname: ${dto.nickname}`);
+			throw new BadRequestException(`nickname-이미 존재합니다. ${dto.nickname}`);
 
 		const emailExists = await this.usersRepository.exists({
 			where: {
@@ -36,7 +36,7 @@ export class UsersService {
 			},
 		});
 
-		if (emailExists) throw new BadRequestException(`이미 존재합니다. email: ${dto.email}`);
+		if (emailExists) throw new BadRequestException(`email-이미 존재합니다. ${dto.email}`);
 
 		const createdUser = this.usersRepository.create({
 			name: dto.name,

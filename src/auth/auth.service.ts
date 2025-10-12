@@ -100,7 +100,7 @@ export class AuthService {
 	 * JWT Token 생성
 	 * return Token
 	 */
-	signToken(user: Pick<UsersModel, 'email' | 'id'>, isRefreshToken: boolean) {
+	signToken(user: UsersModel, isRefreshToken: boolean) {
 		const payload = {
 			email: user.email,
 			sub: user.id,
@@ -109,14 +109,14 @@ export class AuthService {
 
 		return this.jwtService.sign(payload, {
 			secret: this.configService.get(ENV_JWT_SECRET_KEY),
-			expiresIn: isRefreshToken ? 3600 : 300,
+			expiresIn: isRefreshToken ? 3600 : 60,
 		});
 	}
 
 	/**
 	 * Access & Refresh Token 생성
 	 */
-	generateToken(user: Pick<UsersModel, 'email' | 'id'>) {
+	generateToken(user: UsersModel) {
 		return {
 			accessToken: this.signToken(user, false),
 			refreshToken: this.signToken(user, true),

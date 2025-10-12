@@ -13,6 +13,7 @@ import {
 } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { type QueryRunner } from 'typeorm';
+import { IsPublic } from '~common/decorators/is-public.decorator';
 import { Runner } from '~common/decorators/query-runner.decorator';
 import { TransactionInterceptor } from '~common/interceptors/transaction.interceptor';
 import { ERoles } from '~users/consts/roles.const';
@@ -33,6 +34,12 @@ export class UsersController {
 	@Roles(ERoles.ADMIN)
 	getUsers() {
 		return this.usersService.getAllUsers();
+	}
+
+	@Get(':email')
+	@IsPublic()
+	getUserByEmail(@Param('email') email) {
+		return this.usersService.getUserByEmail(email);
 	}
 
 	@ApiOperation({ summary: '나의 Followers 가져오기' })
