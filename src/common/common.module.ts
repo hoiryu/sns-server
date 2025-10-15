@@ -6,6 +6,7 @@ import { v4 as uuid } from 'uuid';
 import { AuthModule } from '~auth/auth.module';
 import { CommonController } from '~common/common.controller';
 import { CommonService } from '~common/common.service';
+import { ACCEPTED_IMAGE_TYPES } from '~common/consts/image.const';
 import { TEMPLATES_FOLDER_PATH } from '~common/consts/path.const';
 import { UsersModule } from '~users/users.module';
 @Module({
@@ -13,12 +14,18 @@ import { UsersModule } from '~users/users.module';
 		MulterModule.register({
 			limits: {
 				fileSize: 10000000,
+				files: 10,
 			},
 			fileFilter: (req, file, cb) => {
 				// cb(Error, Boolean)
 				const ext = extname(file.originalname);
-				if (ext !== '.jpg' && ext !== '.jpeg' && ext !== '.png')
-					return cb(new BadRequestException('jpg/jpeg/png 만 Upload 가능'), false);
+				if (!ACCEPTED_IMAGE_TYPES.includes(ext))
+					return cb(
+						new BadRequestException(
+							`${ACCEPTED_IMAGE_TYPES.join(', ')} 만 Upload 가능`,
+						),
+						false,
+					);
 
 				return cb(null, true);
 			},
