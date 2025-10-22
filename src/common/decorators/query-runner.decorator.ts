@@ -13,7 +13,7 @@ export const Runner = createParamDecorator((data, context: ExecutionContext) => 
 
 	if (!req.queryRunner) {
 		throw new InternalServerErrorException(
-			`QueryRunner Decorator를 사용하려면 TransactionInterceptor 를 적용해야 합니다.`,
+			`QueryRunner Decorator 를 사용하려면 TransactionInterceptor 를 적용해야 합니다.`,
 		);
 	}
 
