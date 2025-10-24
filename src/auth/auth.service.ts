@@ -57,25 +57,30 @@ export class AuthService {
 	 * @return token
 	 */
 	rotateToken(token: string, isRefreshToken: boolean) {
-		const decodedToken = this.jwtService.verify(token, {
-			secret: this.configService.get(ENV_JWT_SECRET_KEY),
-			complete: true,
-		});
+		try {
+			const decodedToken = this.jwtService.verify(token, {
+				secret: this.configService.get(ENV_JWT_SECRET_KEY),
+				complete: true,
+			});
 
-		/**
-		 * sub: id
-		 * email: email,
-		 * type: 'access' | 'refresh'
-		 */
-		if (decodedToken.payload.type !== 'refresh')
-			throw new UnauthorizedException('토큰 재발급은 Refresh 토큰으로만 가능합니다!');
+			/**
+			 * sub: id
+			 * email: email,
+			 * type: 'access' | 'refresh'
+			 */
+			if (decodedToken.payload.type !== 'refresh')
+				throw new UnauthorizedException('토큰 재발급은 Refresh 토큰으로만 가능합니다!');
 
-		return this.signToken(
-			{
-				...decodedToken,
-			},
-			isRefreshToken,
-		);
+			return this.signToken(
+				{
+					id: decodedToken.payload.sub,
+					email: decodedToken.payload.email,
+				},
+				isRefreshToken,
+			);
+		} catch (e) {
+			throw new UnauthorizedException('토큰이 만료됐거나 잘못된 토큰입니다.');
+		}
 	}
 
 	/**
@@ -98,9 +103,9 @@ export class AuthService {
 
 	/**
 	 * JWT Token 생성
-	 * return Token
+	 * @return JWT Token
 	 */
-	signToken(user: UsersModel, isRefreshToken: boolean) {
+	signToken(user: Pick<UsersModel, 'id' | 'email'>, isRefreshToken: boolean) {
 		const payload = {
 			email: user.email,
 			sub: user.id,
@@ -115,6 +120,7 @@ export class AuthService {
 
 	/**
 	 * Access & Refresh Token 생성
+	 * @returns accessToken, refreshToken
 	 */
 	generateToken(user: UsersModel) {
 		return {
@@ -148,7 +154,7 @@ export class AuthService {
 	}
 
 	/**
-	 * Auth signin
+	 * Signin 검증
 	 */
 	async registerWithEmail(user: RegisterUserDto) {
 		const hash = await bcrypt.hash(

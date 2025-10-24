@@ -12,11 +12,17 @@ export abstract class BaseModel {
 	@PrimaryGeneratedColumn()
 	id: number;
 
-	@ApiProperty({ title: '생성 일자' })
-	@UpdateDateColumn()
+	@ApiProperty({ title: '수정 일자', type: String, format: 'date-time' })
+	@UpdateDateColumn({
+		type: 'timestamptz',
+		default: () => 'CURRENT_TIMESTAMP',
+	})
 	updatedAt: Date;
 
-	@ApiProperty({ title: '수정 일자' })
-	@CreateDateColumn()
+	@ApiProperty({ title: '생성 일자', type: String, format: 'date-time' })
+	@CreateDateColumn({
+		type: 'timestamptz',
+		default: () => 'CURRENT_TIMESTAMP',
+	})
 	createdAt: Date;
 }
