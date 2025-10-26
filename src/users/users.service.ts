@@ -1,10 +1,15 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { promises } from 'fs';
+import { join } from 'path';
 import { QueryRunner, Repository } from 'typeorm';
 import { RegisterUserDto } from '~auth/dtos/register-user.dto';
 import { CommonService } from '~common/common.service';
+import { USERS_IMAGE_PATH } from '~common/consts/path.const';
+import { PaginateUserDto } from '~users/dtos/paginte-user.dto';
 import { UsersModel } from '~users/entity/users.entity';
 import { UserFollowersModel } from '~users/user-followers/entity/user-followers.entity';
+import { UserProfilesModel } from '~users/user-profiles/entity/user-profiles.entity';
 
 @Injectable()
 export class UsersService {
@@ -13,6 +18,8 @@ export class UsersService {
 		private readonly usersRepository: Repository<UsersModel>,
 		@InjectRepository(UserFollowersModel)
 		private readonly userFollowersRepository: Repository<UserFollowersModel>,
+		@InjectRepository(UserProfilesModel)
+		private readonly userProfilesRepository: Repository<UserProfilesModel>,
 		private readonly commonService: CommonService,
 	) {}
 
@@ -20,8 +27,20 @@ export class UsersService {
 	 * User 생성하기
 	 * @param dto RegisterUserDto
 	 */
-	async createUser(dto: RegisterUserDto) {
-		const nicknameExists = await this.usersRepository.exists({
+	async createUser(dto: RegisterUserDto, image: string, qr?: QueryRunner) {
+		const usersRepository = this.commonService.getRepository(
+			UsersModel,
+			this.usersRepository,
+			qr,
+		);
+
+		const userProfilesRepository = this.commonService.getRepository(
+			UserProfilesModel,
+			this.userProfilesRepository,
+			qr,
+		);
+
+		const nicknameExists = await usersRepository.exists({
 			where: {
 				nickname: dto.nickname,
 			},
@@ -30,7 +49,7 @@ export class UsersService {
 		if (nicknameExists)
 			throw new BadRequestException(`nickname-이미 존재합니다. ${dto.nickname}`);
 
-		const emailExists = await this.usersRepository.exists({
+		const emailExists = await usersRepository.exists({
 			where: {
 				email: dto.email,
 			},
@@ -38,14 +57,28 @@ export class UsersService {
 
 		if (emailExists) throw new BadRequestException(`email-이미 존재합니다. ${dto.email}`);
 
-		const createdUser = this.usersRepository.create({
+		const createdUser = usersRepository.create({
 			name: dto.name,
 			nickname: dto.nickname,
 			email: dto.email,
 			password: dto.password,
 		});
 
-		const savedUser = await this.usersRepository.save(createdUser);
+		const imagePath = join(USERS_IMAGE_PATH, image);
+
+		try {
+			await promises.access(imagePath);
+		} catch (e) {
+			throw new BadRequestException('존재하지 않는 파일 입니다.');
+		}
+
+		const createdUserProfile = userProfilesRepository.create({
+			...createdUser,
+			path: image,
+		});
+
+		const savedUser = await usersRepository.save(createdUser);
+		const savedUserProfile = await userProfilesRepository.save(createdUserProfile);
 
 		return savedUser;
 	}
@@ -58,11 +91,37 @@ export class UsersService {
 	}
 
 	/**
+	 * Users 가져오기 (Query String)
+	 * @Description dto.page 가 있을 경우 Page Paginate
+	 * @Description dto.page 가 없을 경우 Cursor Paginate
+	 * @param dto PaginatePostDto
+	 */
+	async paginateUsers(dto: PaginateUserDto) {
+		return this.commonService.paginate(
+			dto,
+			this.usersRepository,
+			{
+				select: {
+					profile: {
+						path: true,
+					},
+				},
+				relations: {
+					profile: true,
+				},
+			},
+			'users',
+		);
+	}
+
+	/**
 	 * User 가져오기 (email)
 	 * @param email user.email
 	 */
-	async getUserByEmail(email: string) {
-		return this.usersRepository.findOne({
+	async getUserByEmail(email: string, qr?: QueryRunner) {
+		const repository = this.commonService.getRepository(UsersModel, this.usersRepository, qr);
+
+		return repository.findOne({
 			where: {
 				email,
 			},

@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { QueryRunner } from 'typeorm';
 import { RegisterUserDto } from '~auth/dtos/register-user.dto';
 import { ENV_HASH_ROUNDS_KEY, ENV_JWT_SECRET_KEY } from '~common/consts/env-keys.const';
 import { UsersModel } from '~users/entity/users.entity';
@@ -134,8 +135,11 @@ export class AuthService {
 	 * @param user object email, password
 	 * @returns user
 	 */
-	async authenticateWithEmailAndPassword(user: Pick<UsersModel, 'email' | 'password'>) {
-		const existingUser = await this.usersService.getUserByEmail(user.email);
+	async authenticateWithEmailAndPassword(
+		user: Pick<UsersModel, 'email' | 'password'>,
+		qr?: QueryRunner,
+	) {
+		const existingUser = await this.usersService.getUserByEmail(user.email, qr);
 		if (!existingUser) throw new UnauthorizedException('존재하지 않는 사용자입니다.');
 
 		const isPass = await bcrypt.compare(user.password, existingUser.password);
@@ -147,8 +151,8 @@ export class AuthService {
 	/**
 	 * 검증 이후 Token 발행
 	 */
-	async signinWithEmail(user: Pick<UsersModel, 'email' | 'password'>) {
-		const existingUser = await this.authenticateWithEmailAndPassword(user);
+	async signinWithEmail(user: Pick<UsersModel, 'email' | 'password'>, qr?: QueryRunner) {
+		const existingUser = await this.authenticateWithEmailAndPassword(user, qr);
 
 		return this.generateToken(existingUser);
 	}
@@ -156,20 +160,27 @@ export class AuthService {
 	/**
 	 * Signin 검증
 	 */
-	async registerWithEmail(user: RegisterUserDto) {
+	async registerWithEmail(user: RegisterUserDto, image: string, qr?: QueryRunner) {
 		const hash = await bcrypt.hash(
 			user.password,
 			Number(this.configService.get<number>(ENV_HASH_ROUNDS_KEY)),
 		);
 
-		const newUser = await this.usersService.createUser({
-			...user,
-			password: hash,
-		});
+		const newUser = await this.usersService.createUser(
+			{
+				...user,
+				password: hash,
+			},
+			image,
+			qr,
+		);
 
-		return this.signinWithEmail({
-			...newUser,
-			password: user.password,
-		});
+		return this.signinWithEmail(
+			{
+				...newUser,
+				password: user.password,
+			},
+			qr,
+		);
 	}
 }

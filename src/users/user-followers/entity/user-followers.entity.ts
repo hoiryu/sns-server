@@ -1,6 +1,6 @@
 import { BaseModel } from 'src/common/entity/base.entity';
 import { Column, Entity, ManyToOne } from 'typeorm';
-import { UsersModel } from '../../entity/users.entity';
+import { UsersModel } from '~users/entity/users.entity';
 
 @Entity()
 export class UserFollowersModel extends BaseModel {

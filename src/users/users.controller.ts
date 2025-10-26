@@ -15,10 +15,12 @@ import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { type QueryRunner } from 'typeorm';
 import { IsPublic } from '~common/decorators/is-public.decorator';
 import { Runner } from '~common/decorators/query-runner.decorator';
+import { LogInterceptor } from '~common/interceptors/log.interceptor';
 import { TransactionInterceptor } from '~common/interceptors/transaction.interceptor';
 import { ERoles } from '~users/consts/roles.const';
 import { Roles } from '~users/decorators/roles.decorator';
 import { User } from '~users/decorators/user.decorator';
+import { PaginateUserDto } from '~users/dtos/paginte-user.dto';
 import { UserDto } from '~users/dtos/user.dto';
 import { UsersModel } from '~users/entity/users.entity';
 import { UsersService } from '~users/users.service';
@@ -28,17 +30,26 @@ import { UsersService } from '~users/users.service';
 export class UsersController {
 	constructor(private readonly usersService: UsersService) {}
 
-	@ApiOperation({ summary: '모든 User 가져오기' })
+	@ApiOperation({ summary: '모든 Users 가져오기' })
+	@ApiOkResponse({ type: () => UserDto, isArray: true })
+	@Get('all')
+	@Roles(ERoles.ADMIN)
+	getAllUsers() {
+		return this.usersService.getAllUsers();
+	}
+
+	@ApiOperation({ summary: 'Users 가져오기 (Query String)' })
 	@ApiOkResponse({ type: () => UserDto, isArray: true })
 	@Get()
-	@Roles(ERoles.ADMIN)
-	getUsers() {
-		return this.usersService.getAllUsers();
+	@IsPublic()
+	@UseInterceptors(LogInterceptor)
+	getUsers(@Query() query: PaginateUserDto) {
+		return this.usersService.paginateUsers(query);
 	}
 
 	@Get(':email')
 	@IsPublic()
-	getUserByEmail(@Param('email') email) {
+	getUserByEmail(@Param('email') email: string) {
 		return this.usersService.getUserByEmail(email);
 	}
 

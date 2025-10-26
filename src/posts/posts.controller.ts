@@ -73,7 +73,7 @@ export class PostsController {
 		return this.postsService.getPostById(post.id, qr);
 	}
 
-	@ApiOperation({ summary: 'Post 가져오기 (Query String)' })
+	@ApiOperation({ summary: 'Posts 가져오기 (Query String)' })
 	@Get()
 	@IsPublic()
 	@UseInterceptors(LogInterceptor)

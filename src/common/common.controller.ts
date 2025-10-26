@@ -11,8 +11,9 @@ export class CommonController {
 	@ApiOperation({ summary: '이미지들 업로드' })
 	@ApiOkResponse({
 		type: () => ({
-			filename: String,
+			files: String,
 		}),
+		isArray: true,
 	})
 	@Post('images')
 	@IsPublic()

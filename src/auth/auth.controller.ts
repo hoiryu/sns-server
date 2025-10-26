@@ -1,10 +1,22 @@
-import { Body, Controller, Headers, Post, UseGuards } from '@nestjs/common';
+import {
+	Body,
+	Controller,
+	Headers,
+	Post,
+	UploadedFile,
+	UseGuards,
+	UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { type QueryRunner } from 'typeorm';
 import { AuthService } from '~auth/auth.service';
 import { RegisterUserDto } from '~auth/dtos/register-user.dto';
 import { BasicTokenGuard } from '~auth/guards/basic-token.guard';
 import { RefreshTokenGuard } from '~auth/guards/bearer-token.guard';
 import { IsPublic } from '~common/decorators/is-public.decorator';
+import { Runner } from '~common/decorators/query-runner.decorator';
+import { TransactionInterceptor } from '~common/interceptors/transaction.interceptor';
 
 @ApiTags('AUTH')
 @Controller('auth')
@@ -40,8 +52,20 @@ export class AuthController {
 	@ApiOperation({ summary: '유저 생성' })
 	@Post('register/email')
 	@IsPublic()
-	async postRegisterEmail(@Body() body: RegisterUserDto) {
-		return this.authService.registerWithEmail(body);
+	@UseInterceptors(TransactionInterceptor)
+	@UseInterceptors(FileInterceptor('image'))
+	async postRegisterEmail(
+		@Body() body: RegisterUserDto,
+		@UploadedFile() file: Express.Multer.File,
+		@Runner() qr: QueryRunner,
+	) {
+		return this.authService.registerWithEmail(
+			{
+				...body,
+			},
+			file.filename,
+			qr,
+		);
 	}
 
 	@ApiOperation({ summary: '유저 로그인' })

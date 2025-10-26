@@ -5,8 +5,11 @@ import {
 	InternalServerErrorException,
 	NestInterceptor,
 } from '@nestjs/common';
+import { promises } from 'fs';
+import { join } from 'path';
 import { catchError, Observable, tap } from 'rxjs';
 import { DataSource } from 'typeorm';
+import { USERS_IMAGE_PATH } from '~common/consts/path.const';
 
 /**
  * QueryRunner 자동 생성
@@ -28,6 +31,16 @@ export class TransactionInterceptor implements NestInterceptor {
 			catchError(async e => {
 				await qr.rollbackTransaction();
 				await qr.release();
+
+				if (req.file) {
+					const filePath = join(USERS_IMAGE_PATH, req.file.filename);
+
+					try {
+						await promises.unlink(filePath);
+					} catch (e) {
+						throw new InternalServerErrorException(e.message);
+					}
+				}
 
 				throw new InternalServerErrorException(e.message);
 			}),

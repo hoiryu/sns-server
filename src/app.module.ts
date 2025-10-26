@@ -27,6 +27,7 @@ import { AppService } from '~src/app.service';
 import { UsersModel } from '~users/entity/users.entity';
 import { RolesGuard } from '~users/guards/roles.guard';
 import { UserFollowersModel } from '~users/user-followers/entity/user-followers.entity';
+import { UserProfilesModel } from '~users/user-profiles/entity/user-profiles.entity';
 import { UsersModule } from '~users/users.module';
 
 @Module({
@@ -57,6 +58,7 @@ import { UsersModule } from '~users/users.module';
 					MessagesModel,
 					CommentsModel,
 					UserFollowersModel,
+					UserProfilesModel,
 				],
 				synchronize: true,
 			}),

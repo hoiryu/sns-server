@@ -1,7 +1,7 @@
 import { ApiHideProperty, ApiProperty } from '@nestjs/swagger';
 import { Exclude } from 'class-transformer';
 import { IsEmail, IsString, Length } from 'class-validator';
-import { Column, Entity, ManyToMany, OneToMany } from 'typeorm';
+import { Column, Entity, ManyToMany, OneToMany, OneToOne } from 'typeorm';
 import { ChatsModel } from '~chats/entity/chats.entity';
 import { MessagesModel } from '~chats/messages/entity/messages.entity';
 import { BaseModel } from '~common/entity/base.entity';
@@ -12,6 +12,7 @@ import { CommentsModel } from '~posts/comments/entity/comments.entity';
 import { PostsModel } from '~posts/entity/posts.entity';
 import { ERoles } from '~users/consts/roles.const';
 import { UserFollowersModel } from '~users/user-followers/entity/user-followers.entity';
+import { UserProfilesModel } from '~users/user-profiles/entity/user-profiles.entity';
 
 @Entity()
 export class UsersModel extends BaseModel {
@@ -42,6 +43,11 @@ export class UsersModel extends BaseModel {
 		toPlainOnly: true,
 	})
 	password: string;
+
+	@OneToOne(() => UserProfilesModel, profile => profile.user, {
+		cascade: true, // user 저장 시 profile 도 함께 저장
+	})
+	profile: UserProfilesModel;
 
 	@OneToMany(() => PostsModel, post => post.author)
 	posts: PostsModel[];
