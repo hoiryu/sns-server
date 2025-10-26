@@ -28,7 +28,7 @@ export class TransactionInterceptor implements NestInterceptor {
 		req.queryRunner = qr;
 
 		return next.handle().pipe(
-			catchError(async e => {
+			catchError(async error => {
 				await qr.rollbackTransaction();
 				await qr.release();
 
@@ -38,11 +38,13 @@ export class TransactionInterceptor implements NestInterceptor {
 					try {
 						await promises.unlink(filePath);
 					} catch (e) {
-						throw new InternalServerErrorException(e.message);
+						throw new InternalServerErrorException(
+							`파일이 존재하지 않습니다. ${filePath}`,
+						);
 					}
 				}
 
-				throw new InternalServerErrorException(e.message);
+				throw error;
 			}),
 			tap(async () => {
 				await qr.commitTransaction();
