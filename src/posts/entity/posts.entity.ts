@@ -5,6 +5,7 @@ import { BaseModel } from '~common/entity/base.entity';
 import { ImagesModel } from '~common/entity/images.entity';
 import { stringValidationMessage } from '~common/validation-message/string-validation.message';
 import { CommentsModel } from '~posts/comments/entity/comments.entity';
+import { PostLikesModel } from '~posts/post-likes/entity/post-likes.entity';
 import { UsersModel } from '~users/entity/users.entity';
 
 @Entity()
@@ -19,11 +20,11 @@ export class PostsModel extends BaseModel {
 	@Column()
 	content: string;
 
-	@ApiProperty({ title: '좋아요 갯수' })
+	@ApiProperty({ title: '좋아요 갯수', example: 99 })
 	@Column()
 	likeCount: number;
 
-	@ApiProperty({ title: '코멘트 갯수' })
+	@ApiProperty({ title: '코멘트 갯수', example: 99 })
 	@Column()
 	commentCount: number;
 
@@ -33,4 +34,7 @@ export class PostsModel extends BaseModel {
 
 	@OneToMany(() => CommentsModel, comment => comment.post)
 	comments: CommentsModel[];
+
+	@OneToMany(() => PostLikesModel, postLikes => postLikes.post)
+	postLikes: PostLikesModel[];
 }

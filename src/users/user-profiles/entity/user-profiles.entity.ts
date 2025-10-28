@@ -21,6 +21,7 @@ export class UserProfilesModel extends BaseModel {
 
 	@OneToOne(() => UsersModel, user => user.profile, {
 		onDelete: 'CASCADE', // user 삭제 시 profile 도 삭제
+		nullable: false,
 	})
 	@JoinColumn()
 	user: UsersModel;

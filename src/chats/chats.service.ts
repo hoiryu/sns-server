@@ -31,7 +31,7 @@ export class ChatsService {
 	}
 
 	/**
-	 * Post 가져오기 (Query String)
+	 * Chats 가져오기 (Query String)
 	 * @Description dto.page 가 있을 경우 Page Paginate, dto.page 가 없을 경우 Cursor Paginate
 	 * @param dto PaginateChatDto
 	 */

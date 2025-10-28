@@ -10,6 +10,7 @@ import { lengthValidationMessage } from '~common/validation-message/length-valid
 import { stringValidationMessage } from '~common/validation-message/string-validation.message';
 import { CommentsModel } from '~posts/comments/entity/comments.entity';
 import { PostsModel } from '~posts/entity/posts.entity';
+import { PostLikesModel } from '~posts/post-likes/entity/post-likes.entity';
 import { ERoles } from '~users/consts/roles.const';
 import { UserFollowersModel } from '~users/user-followers/entity/user-followers.entity';
 import { UserProfilesModel } from '~users/user-profiles/entity/user-profiles.entity';
@@ -51,6 +52,9 @@ export class UsersModel extends BaseModel {
 
 	@OneToMany(() => PostsModel, post => post.author)
 	posts: PostsModel[];
+
+	@OneToMany(() => PostLikesModel, postLikes => postLikes.user)
+	postLikes: PostLikesModel[];
 
 	@ManyToMany(() => ChatsModel, chat => chat.users)
 	chats: ChatsModel[];

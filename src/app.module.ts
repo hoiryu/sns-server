@@ -21,6 +21,7 @@ import { ImagesModel } from '~common/entity/images.entity';
 import { CommentsModule } from '~posts/comments/comments.module';
 import { CommentsModel } from '~posts/comments/entity/comments.entity';
 import { PostsModel } from '~posts/entity/posts.entity';
+import { PostLikesModel } from '~posts/post-likes/entity/post-likes.entity';
 import { PostsModule } from '~posts/posts.module';
 import { AppController } from '~src/app.controller';
 import { AppService } from '~src/app.service';
@@ -59,6 +60,7 @@ import { UsersModule } from '~users/users.module';
 					CommentsModel,
 					UserFollowersModel,
 					UserProfilesModel,
+					PostLikesModel,
 				],
 				synchronize: true,
 			}),

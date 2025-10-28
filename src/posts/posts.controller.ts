@@ -24,6 +24,7 @@ import { PostDto } from '~posts/dtos/post.dto';
 import { UpdatePostDto } from '~posts/dtos/update-post.dto';
 import { IsPostMineOrAdminGuard } from '~posts/guards/is-post-mine-or-admin.guard';
 import { PostsImagesService } from '~posts/image/posts-images.service';
+import { PostLikesService } from '~posts/post-likes/post-likes.service';
 import { PostsService } from '~posts/posts.service';
 import { ERoles } from '~users/consts/roles.const';
 import { Roles } from '~users/decorators/roles.decorator';
@@ -36,6 +37,7 @@ export class PostsController {
 	constructor(
 		private readonly postsService: PostsService,
 		private readonly postsImagesService: PostsImagesService,
+		private readonly postLikesService: PostLikesService,
 	) {}
 
 	@ApiOperation({ summary: 'Posts 생성하기 (random)' })
@@ -50,7 +52,7 @@ export class PostsController {
 	@ApiOkResponse({ type: () => PostDto })
 	@Post()
 	@UseInterceptors(TransactionInterceptor)
-	async postPosts(
+	async postPost(
 		@User('id') userId: number,
 		@Body() body: CreatePostDto,
 		@Runner() qr: QueryRunner,
@@ -100,5 +102,29 @@ export class PostsController {
 	@Roles(ERoles.ADMIN)
 	deletePost(@Param('postId', ParseIntPipe) id: number) {
 		return this.postsService.deletePost(id);
+	}
+
+	@ApiOperation({ summary: 'Post 좋아요 생성하기' })
+	@ApiOkResponse({ type: () => Boolean })
+	@Post(':postId/like')
+	@UseInterceptors(TransactionInterceptor)
+	async postPostLike(
+		@Param('postId', ParseIntPipe) postId: number,
+		@User('id') userId: number,
+		@Runner() qr: QueryRunner,
+	) {
+		return this.postLikesService.likePost(postId, userId, qr);
+	}
+
+	@ApiOperation({ summary: 'Post 좋아요 삭제하기' })
+	@ApiOkResponse({ type: () => Boolean })
+	@Delete(':postId/like')
+	@UseInterceptors(TransactionInterceptor)
+	async deletePostLike(
+		@Param('postId', ParseIntPipe) postId: number,
+		@User('id') userId: number,
+		@Runner() qr: QueryRunner,
+	) {
+		return this.postLikesService.unlikePost(postId, userId, qr);
 	}
 }

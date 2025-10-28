@@ -133,7 +133,7 @@ export class CommentsService {
 		});
 
 		if (!comment) {
-			throw new BadRequestException(`존재하지 않는 댓글입니다. commentId: ${commentId}`);
+			throw new BadRequestException(`존재하지 않습니다. (commentId: ${commentId})`);
 		}
 
 		await repository.delete(commentId);

@@ -19,7 +19,7 @@ export class IsCommentMineOrAdminGuard implements CanActivate {
 
 		const { user } = req;
 
-		if (!user) throw new UnauthorizedException('사용자 정보를 가져올 수 없습니다.');
+		if (!user) throw new UnauthorizedException('로그인 후 이용 가능합니다.');
 
 		if (user.role === ERoles.ADMIN) return true;
 
@@ -29,7 +29,7 @@ export class IsCommentMineOrAdminGuard implements CanActivate {
 
 		if (!isOk)
 			throw new ForbiddenException(
-				`권한이 없습니다. userId: ${user.id} commentId: ${commentId}`,
+				`권한이 없습니다. (userId: ${user.id} commentId: ${commentId})`,
 			);
 
 		return true;

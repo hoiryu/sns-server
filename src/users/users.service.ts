@@ -73,7 +73,7 @@ export class UsersService {
 		}
 
 		const createdUserProfile = userProfilesRepository.create({
-			...createdUser,
+			user: createdUser,
 			path: image,
 		});
 
@@ -124,6 +124,14 @@ export class UsersService {
 		return repository.findOne({
 			where: {
 				email,
+			},
+			select: {
+				profile: {
+					path: true,
+				},
+			},
+			relations: {
+				profile: true,
 			},
 		});
 	}
