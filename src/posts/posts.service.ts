@@ -122,6 +122,26 @@ export class PostsService {
 	}
 
 	/**
+	 * Post 삭제하기
+	 * @param postId post.id
+	 */
+	async deletePost(id: number) {
+		const post = await this.postsRepository.findOne({
+			where: {
+				id,
+			},
+		});
+
+		if (!post) {
+			throw new NotFoundException(`Post 를 찾을 수 없습니다. id: ${id}`);
+		}
+
+		await this.postsRepository.delete(id);
+
+		return id;
+	}
+
+	/**
 	 * commentCount 증가하기
 	 * @param postId post.id
 	 * @param qr QueryRunner
@@ -156,23 +176,37 @@ export class PostsService {
 	}
 
 	/**
-	 * Post 삭제하기
+	 * likeCount 증가하기
 	 * @param postId post.id
+	 * @param qr QueryRunner
 	 */
-	async deletePost(id: number) {
-		const post = await this.postsRepository.findOne({
-			where: {
-				id,
+	async incrementLikeCount(postId: number, qr?: QueryRunner) {
+		const repository = this.commonService.getRepository(PostsModel, this.postsRepository, qr);
+
+		await repository.increment(
+			{
+				id: postId,
 			},
-		});
+			'likeCount',
+			1,
+		);
+	}
 
-		if (!post) {
-			throw new NotFoundException(`Post 를 찾을 수 없습니다. id: ${id}`);
-		}
+	/**
+	 * likeCount 감소하기
+	 * @param postId post.id
+	 * @param qr QueryRunner
+	 */
+	async decrementLikeCount(postId: number, qr?: QueryRunner) {
+		const repository = this.commonService.getRepository(PostsModel, this.postsRepository, qr);
 
-		await this.postsRepository.delete(id);
-
-		return id;
+		await repository.decrement(
+			{
+				id: postId,
+			},
+			'likeCount',
+			1,
+		);
 	}
 
 	/**

@@ -1,5 +1,5 @@
 import { BaseModel } from 'src/common/entity/base.entity';
-import { Entity, ManyToOne, Unique } from 'typeorm';
+import { Entity, ManyToOne, RelationId, Unique } from 'typeorm';
 import { PostsModel } from '~posts/entity/posts.entity';
 import { UsersModel } from '~users/entity/users.entity';
 
@@ -12,9 +12,15 @@ export class PostLikesModel extends BaseModel {
 	})
 	post: PostsModel;
 
+	@RelationId((postLike: PostLikesModel) => postLike.post)
+	postId: number;
+
 	@ManyToOne(() => UsersModel, user => user.postLikes, {
 		onDelete: 'CASCADE',
 		nullable: false,
 	})
 	user: UsersModel;
+
+	@RelationId((postLike: PostLikesModel) => postLike.user)
+	userId: number;
 }

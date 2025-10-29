@@ -1,13 +1,21 @@
 import { BaseModel } from 'src/common/entity/base.entity';
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { Check, Column, Entity, ManyToOne, Unique } from 'typeorm';
 import { UsersModel } from '~users/entity/users.entity';
 
 @Entity()
+@Unique('user_followers_follower_following', ['follower', 'following'])
+@Check(`"followerId" <> "followingId"`)
 export class UserFollowersModel extends BaseModel {
-	@ManyToOne(() => UsersModel, user => user.followers)
+	@ManyToOne(() => UsersModel, user => user.followers, {
+		onDelete: 'CASCADE',
+		nullable: false,
+	})
 	follower: UsersModel;
 
-	@ManyToOne(() => UsersModel, user => user.following)
+	@ManyToOne(() => UsersModel, user => user.following, {
+		onDelete: 'CASCADE',
+		nullable: false,
+	})
 	following: UsersModel;
 
 	@Column({

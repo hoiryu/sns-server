@@ -79,8 +79,8 @@ export class PostsController {
 	@Get()
 	@IsPublic()
 	@UseInterceptors(LogInterceptor)
-	getPosts(@Query() query: PaginatePostDto) {
-		return this.postsService.paginatePosts(query);
+	getPosts(@Query() query: PaginatePostDto, @User('id') userId: number) {
+		return this.postsService.paginatePosts(query, userId);
 	}
 
 	@ApiOperation({ summary: 'Post 가져오기 (postId)' })
@@ -113,7 +113,11 @@ export class PostsController {
 		@User('id') userId: number,
 		@Runner() qr: QueryRunner,
 	) {
-		return this.postLikesService.likePost(postId, userId, qr);
+		await this.postLikesService.likePost(postId, userId, qr);
+
+		await this.postsService.incrementLikeCount(postId, qr);
+
+		return true;
 	}
 
 	@ApiOperation({ summary: 'Post 좋아요 삭제하기' })
@@ -125,6 +129,10 @@ export class PostsController {
 		@User('id') userId: number,
 		@Runner() qr: QueryRunner,
 	) {
-		return this.postLikesService.unlikePost(postId, userId, qr);
+		await this.postLikesService.unlikePost(postId, userId, qr);
+
+		await this.postsService.decrementLikeCount(postId, qr);
+
+		return true;
 	}
 }

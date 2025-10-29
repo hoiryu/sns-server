@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { QueryRunner, Repository } from 'typeorm';
 import { CommonService } from '~common/common.service';
@@ -43,7 +43,7 @@ export class PostLikesService {
 
 		if (!existingPost) throw new NotFoundException(`존재하지 않습니다. (postId: ${postId})`);
 
-		const postLike = await postLikesRepository.upsert(
+		const result = await postLikesRepository.upsert(
 			{
 				post: {
 					id: postId,
@@ -55,14 +55,8 @@ export class PostLikesService {
 			{ conflictPaths: ['post', 'user'], skipUpdateIfNoValuesChanged: true },
 		);
 
-		if (postLike.raw.length > 0)
-			await postsRepository.increment(
-				{
-					id: postId,
-				},
-				'likeCount',
-				1,
-			);
+		if (!result.raw.length)
+			throw new BadRequestException(`이미 존재합니다. (postId: ${postId} userId: ${userId})`);
 
 		return true;
 	}
@@ -100,23 +94,39 @@ export class PostLikesService {
 				post: {
 					id: postId,
 				},
+				user: {
+					id: userId,
+				},
 			},
 		});
 
 		if (!postLike)
-			throw new NotFoundException(`존재하지 않습니다. (postLike 의 postId: ${postId})`);
-
-		const deletedPostLike = await postLikesRepository.delete(postLike.id);
-
-		if (deletedPostLike.affected && deletedPostLike.affected > 0)
-			await postsRepository.decrement(
-				{
-					id: postId,
-				},
-				'likeCount',
-				1,
+			throw new NotFoundException(
+				`존재하지 않습니다. (postLike 의 postId: ${postId} userId: ${userId})`,
 			);
 
-		return true;
+		const deleted = await postLikesRepository.delete(postLike.id);
+
+		return deleted;
+	}
+
+	/**
+	 * 유저와 Post 의 좋아요가 일치하는지 체크
+	 * @param postId post.id
+	 * @param userId user.id
+	 * @param qr QueryRunner
+	 * @return boolean
+	 */
+	async isLikedByMe(postId: number, userId: number) {
+		return this.postLikesRepository.exists({
+			where: {
+				post: {
+					id: postId,
+				},
+				user: {
+					id: userId,
+				},
+			},
+		});
 	}
 }
