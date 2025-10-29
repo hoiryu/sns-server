@@ -79,8 +79,8 @@ export class PostsController {
 	@Get()
 	@IsPublic()
 	@UseInterceptors(LogInterceptor)
-	getPosts(@Query() query: PaginatePostDto, @User('id') userId: number) {
-		return this.postsService.paginatePosts(query, userId);
+	getPosts(@Query() query: PaginatePostDto) {
+		return this.postsService.paginatePosts(query);
 	}
 
 	@ApiOperation({ summary: 'Post 가져오기 (postId)' })
